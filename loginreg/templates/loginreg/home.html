@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title> HOME - {% if user %}{{user}}{% endif %}</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="">USER HOME</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="logout">Logout <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="change_pass"> Change_Password </a>
+            </li>
+          </ul>
+        </div>
+    </nav>
+
+    <div class="main">
+        <div class="msg-container container">
+            <div class="container msg-container text-center my-3">
+                <h3 class="text-center" style="{% if status %}color: green;{% else %}color: red;{% endif %}">
+                    {% if status %}
+                        You are an Active User
+                    {% else %}
+                        You are an Inactive User! Wait for ADMIN for making you active
+                    {% endif %}
+                </h3>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
