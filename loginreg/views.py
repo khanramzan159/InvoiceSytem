@@ -1,10 +1,11 @@
 import re
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.http import HttpResponse
-from .models import User,Admin
+from .models import User,Admin,Invoice,Item
 from hashlib import sha256
 from django.contrib import messages
 from django.db.models import Q
+from .forms import InvoiceForm, ItemFormSet
 
 def home(request):
     if request.session.has_key('admin'):
@@ -12,11 +13,13 @@ def home(request):
     if request.session.has_key('login'):  
         user = request.session['user']
         user_det = User.objects.get(name=user)
+        invoices = Invoice.objects.filter(created_by=user_det)
         context = {
             'user': user,
             'email': user_det.email,
             'id': user_det.id,   
-            'status': user_det.status
+            'status': user_det.status,
+            'invoices': invoices
         }   
         return render(request, 'loginreg/home.html', context)
     else:   
@@ -158,17 +161,83 @@ def admin(request):
         users = User.objects.all()            
         return render(request, 'loginreg/admin.html', {'dets': users})
     elif request.POST:
-            usern = request.POST.get('username')
-            passw = request.POST.get('password')
-            # passwenc = sha256(passw.encode()).hexdigest()
-            admins = Admin.objects.filter(username=usern,password=passw)
-            if admins:
-                request.session['admin'] = 1
-                return redirect(admin)
-            else:    
-                return render(request, 'loginreg/admin-login.html', {'error': 'Invalid credentials!'})      
+        usern = request.POST.get('username')
+        passw = request.POST.get('password')
+        # passwenc = sha256(passw.encode()).hexdigest()
+        admins = Admin.objects.filter(username=usern,password=passw)
+        if admins:
+            request.session['admin'] = 1
+            return redirect(admin)
+        else:    
+            return render(request, 'loginreg/admin-login.html', {'error': 'Invalid credentials!'})      
     else:    
-        return render(request, 'loginreg/admin-login.html')        
+        return render(request, 'loginreg/admin-login.html')   
+
+def admin_invoices(request):
+    if request.session.has_key('user'):
+        return redirect(home)
+    if request.session.has_key('admin'):  
+        all_invoices = Invoice.objects.all()            
+        return render(request, 'loginreg/admin_invoices.html', {'invoices': all_invoices})
+    else:
+        return redirect(admin)  
+
+def admin_create_invoice(request):
+    if request.session.has_key('admin'):
+        if request.method == 'POST':
+            invoice_form = InvoiceForm(request.POST)
+            item_formset = ItemFormSet(request.POST, prefix='items')
+
+            if invoice_form.is_valid() and item_formset.is_valid():
+                # Save the invoice form to get the invoice instance
+                invoice = invoice_form.save(commit=False)
+                # invoice.created_by = 'Admin'
+                
+                invoice.save()
+                # Save the item forms with the reference to the invoice
+                items = item_formset.save(commit=False)
+                for item in items:
+                    item.invoice = invoice
+                    item.save()
+
+                invoice.save()
+                return redirect(admin_invoices)
+            else:
+                # Handle form validation errors
+                return render(request, 'loginreg/create_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'error':"An error Occured"})
+        else:
+            invoice_form = InvoiceForm()
+            item_formset = ItemFormSet(prefix='items')
+            return render(request, 'loginreg/create_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+    else:
+        return redirect(admin_invoices)   
+    
+def admin_update_invoice(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    if request.method == 'POST':
+        invoice_form = InvoiceForm(request.POST, instance=invoice)
+        item_formset = ItemFormSet(request.POST, instance=invoice, prefix='items')
+
+        if invoice_form.is_valid() and item_formset.is_valid():
+            invoice_form.save()
+            item_formset.save()
+            invoice_form.save()
+
+            messages.success(request , (f"Invoice No. {invoice_id} has been Updated!"))
+            return redirect(admin_invoices)
+        else:
+            # Handle form validation errors
+            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+    else:
+        invoice_form = InvoiceForm(instance=invoice)
+        item_formset = ItemFormSet(instance=invoice, prefix='items')
+        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+
+def admin_delete_invoice(request , invoice_id):
+    invoice = Invoice.objects.get(id=invoice_id)
+    invoice.delete()
+    messages.success(request , (f"Invoice No. {invoice_id} has been deleted!"))
+    return redirect(admin_invoices)
 
 def view(request):
     if request.session.has_key('user'):
@@ -199,6 +268,7 @@ def view(request):
             return render(request, 'loginreg/view.html', {'error': 'No such user!'})     
     else:
         return redirect(admin)
+    
 def delete(request):
     if request.session.has_key('user'):
         return redirect(home)
@@ -313,3 +383,84 @@ def create(request):
                     return redirect(admin)
         else:    
             return render(request, 'loginreg/create.html')
+
+
+def create_invoice(request):
+    if request.session.has_key('login'):
+        if User.objects.get(name=request.session['user']).status == 0:
+            messages.warning(request, ('You are not an active user'))
+            return redirect(home)
+    return create_invoice2(request)
+# creating invoice
+def create_invoice2(request):
+    if request.session.has_key('login'):
+        user_instance = User.objects.get(name=request.session['user'])
+        if request.method == 'POST':
+            invoice_form = InvoiceForm(request.POST)
+            item_formset = ItemFormSet(request.POST, prefix='items')
+
+            if invoice_form.is_valid() and item_formset.is_valid():
+                # Save the invoice form to get the invoice instance
+                invoice = invoice_form.save(commit=False)
+                invoice.created_by = user_instance
+                
+                invoice.save()
+                # Save the item forms with the reference to the invoice
+                items = item_formset.save(commit=False)
+                for item in items:
+                    item.invoice = invoice
+                    item.save()
+
+                invoice.save()
+                return redirect(home)
+            else:
+                # Handle form validation errors
+                return render(request, 'loginreg/create_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'error':"An error Occured"})
+        else:
+            invoice_form = InvoiceForm()
+            item_formset = ItemFormSet(prefix='items')
+            return render(request, 'loginreg/create_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+    else:
+        return redirect(home)
+    
+
+def update_invoice(request, invoice_id):
+    user_instance = User.objects.get(name=request.session['user'])
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    if user_instance.status == 0 or invoice.created_by != user_instance:
+        messages.warning(request, ('You Are Not Allowed to do this'))
+        return redirect(home)
+    return update_invoice2(request, invoice_id)
+
+def update_invoice2(request, invoice_id):
+        
+    user_instance = User.objects.get(name=request.session['user'])
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    if request.method == 'POST':
+        invoice_form = InvoiceForm(request.POST, instance=invoice)
+        item_formset = ItemFormSet(request.POST, instance=invoice, prefix='items')
+
+        if invoice_form.is_valid() and item_formset.is_valid():
+            invoice_form.save()
+            item_formset.save()
+            invoice_form.save()
+            messages.success(request , (f"Invoice No. {invoice_id} has been Updated!"))
+            return redirect(home)
+        else:
+            # Handle form validation errors
+            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+    else:
+        invoice_form = InvoiceForm(instance=invoice)
+        item_formset = ItemFormSet(instance=invoice, prefix='items')
+        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+
+def delete_invoice(request , invoice_id):
+    user_instance = User.objects.get(name=request.session['user'])
+    invoice = Invoice.objects.get(id=invoice_id)
+    if user_instance.status == 1 and invoice.created_by == user_instance:        
+        invoice.delete()
+        messages.success(request , (f"Invoice No. {invoice_id} has been deleted!"))
+        return redirect(home)
+    else:
+        messages.warning(request, ('You Are Not Allowed to do this'))
+        return redirect(home)
