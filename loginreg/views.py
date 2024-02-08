@@ -433,8 +433,7 @@ def update_invoice(request, invoice_id):
     return update_invoice2(request, invoice_id)
 
 def update_invoice2(request, invoice_id):
-        
-    user_instance = User.objects.get(name=request.session['user'])
+            
     invoice = get_object_or_404(Invoice, id=invoice_id)
     if request.method == 'POST':
         invoice_form = InvoiceForm(request.POST, instance=invoice)
@@ -448,11 +447,11 @@ def update_invoice2(request, invoice_id):
             return redirect(home)
         else:
             # Handle form validation errors
-            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'invoice_id': invoice_id})
     else:
         invoice_form = InvoiceForm(instance=invoice)
         item_formset = ItemFormSet(instance=invoice, prefix='items')
-        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'invoice_id': invoice_id})
 
 def delete_invoice(request , invoice_id):
     user_instance = User.objects.get(name=request.session['user'])
