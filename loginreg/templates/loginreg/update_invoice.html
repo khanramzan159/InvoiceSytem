@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- jquery link -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <title> HOME - {% if user %}{{user}}{% endif %}</title>
+
+    <style>
+      .invoice-container {
+          margin-top: 50px;
+      }
+  
+      .invoice {
+          background-color: #f8f9fa;
+          padding: 20px;
+          border-radius: 10px;
+          display: flex;
+          flex-direction: column; /* Display children vertically */
+          align-items: center; /* Center align items horizontally */
+      }
+  
+      .form-group {
+          margin-bottom: 20px;
+          width: 100%;
+          display: flex;
+          flex-direction: row; /* Display children horizontally */
+          justify-content: space-between; /* Space between children */
+      }
+
+      /*
+      #formset-items{
+        display: flex;
+        flex-direction: row; 
+        justify-content: center; 
+        margin-top: 30px; 
+        margin-bottom: 30px;
+      }
+      #formset-items .form-control{
+        height: 50px;
+      }
+      */
+      .form-control{
+        height: 50px;
+      }
+      /*
+      .item-form-row{
+        display: flex;
+        flex-direction: row; 
+        justify-content: center; 
+      }
+
+      .item-form-row .form-control{
+        height: 50px;
+      }
+      */
+  
+      .form-group label {
+          width: 30%; /* Adjust label width as needed */
+          margin-right: 10px; /* Add spacing between label and input */
+      }
+  
+      .form-group input, .form-group select, .form-group textarea {
+          width: 60%; /* Adjust input width as needed */
+      }
+  
+      .add-item, .submit-btn {
+          margin-top: 20px; /* Add margin between buttons and form fields */
+      }
+  </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">USER HOME</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/logout">Logout <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/change_pass"> Change_Password </a>
+            </li>
+          </ul>
+        </div>
+    </nav>
+
+    <div class="main">
+        <div class="invoice-container container">
+            <div class="container invoice form text-center my-3">
+              <h2 class="text-center">Update Invoice</h2>
+              <form method="post" class="main-invoice-form text-center">
+                {% csrf_token %}
+                <div>
+                  {{ invoice_form.as_p }}
+                </div>
+                {{ item_formset.management_form }}
+                <div id="formset-items">
+                  {% for form in item_formset %}
+                    {{ form.as_table }}
+                  {% endfor %}
+                </div>
+                <div class="mt-4"><button type="button" id="add-item" class="btn btn-primary my-4">Add Item</button></div>
+                <button type="submit"> Save </button>
+              </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template for the item form -->
+    <script id="item-form-template" type="text/template">
+      {{ item_formset.empty_form.as_table }}
+    </script>
+  
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        var formsetItems = $('#formset-items');
+        var addItemButton = $('#add-item');
+        var itemFormTemplate = $('#item-form-template').html();
+        
+        addItemButton.click(function() {
+          // Get the total number of forms
+          var totalForms = parseInt($('#id_items-TOTAL_FORMS').val());
+  
+          // Replace "__prefix__" with the new form index
+          var newItemForm = itemFormTemplate.replace(/__prefix__/g, totalForms);
+          
+          // Append the new form to the formset
+          formsetItems.after('<div class="item-form-row">' + newItemForm + '</div>' + '<br>');
+  
+          // Update the total forms count
+          $('#id_items-TOTAL_FORMS').val(totalForms + 1);
+        });
+      });
+    </script>
+</body>
+</html>
