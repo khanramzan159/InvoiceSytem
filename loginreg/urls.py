@@ -10,6 +10,7 @@ urlpatterns = [
     path('changepass', views.changep),
     path('change_pass', views.changepassword),
     path('admin/', views.admin),
+    # path('main_app_admin/', admin.site.urls),
     path('admin/view', views.view),
     path('admin/save', views.save),
     path('admin/delete', views.delete),

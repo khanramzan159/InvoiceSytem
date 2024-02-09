@@ -227,11 +227,11 @@ def admin_update_invoice(request, invoice_id):
             return redirect(admin_invoices)
         else:
             # Handle form validation errors
-            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'invoice_id': invoice_id})
     else:
         invoice_form = InvoiceForm(instance=invoice)
         item_formset = ItemFormSet(instance=invoice, prefix='items')
-        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'invoice_id': invoice_id})
 
 def admin_delete_invoice(request , invoice_id):
     invoice = Invoice.objects.get(id=invoice_id)
@@ -333,7 +333,9 @@ def block(request):
                 request.session['unblocked'] = 1  
                 request.session['block'] = 0  
             request.session['blockid'] = id    
-            return redirect(view)    
+            return redirect(view)  
+    else:
+        return redirect(admin)  
 
 def search(request):
     if request.session.has_key('user'):
@@ -350,12 +352,20 @@ def search(request):
             else:
                 request.session['searchuser'] = 1
                 return redirect(admin)
+    else:
+        return redirect(admin)
+    
 
 
 
 def adminlogout(request):
-    request.session.flush()
-    return redirect(admin)
+    if request.session.has_key('user'):
+        return redirect(home)
+    if request.session.has_key('admin'): 
+        request.session.flush()
+        return redirect(admin)
+    else:
+        return redirect(admin)
 
 def create(request):
     if request.session.has_key('user'):
@@ -383,6 +393,8 @@ def create(request):
                     return redirect(admin)
         else:    
             return render(request, 'loginreg/create.html')
+    else:
+        return redirect(admin)
 
 
 def create_invoice(request):
