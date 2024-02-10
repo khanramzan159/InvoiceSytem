@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Sum
+from simple_history.models import HistoricalRecords
 
 # Create your models here.
 class User(models.Model):
@@ -27,6 +28,7 @@ class Invoice(models.Model):
     gst_rate = models.DecimalField(max_digits=20, decimal_places=2, editable=False, null=True)
     all_total = models.DecimalField(max_digits=20, decimal_places=2, editable=False, null=True)
     note = models.TextField(null=True)
+    history = HistoricalRecords(user_model=User)
 
     def save(self, *args, **kwargs):
         super(Invoice, self).save(*args, **kwargs)  # Save the Invoice instance first
@@ -36,6 +38,9 @@ class Invoice(models.Model):
         self.all_total = self.subtotal + self.gst_rate  # Update all_total based on subtotal and gst_rate
         super(Invoice, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return "invoice" + "(" + str(self.id) + ")"
+
 class Item(models.Model):
     item_no = models.CharField(max_length=50)
     item_name = models.TextField()
@@ -44,6 +49,7 @@ class Item(models.Model):
     total = models.DecimalField(max_digits=20, decimal_places=2, editable=False)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items')
     remove = models.BooleanField(default=False)
+    history = HistoricalRecords(user_model=User)
 
     def save(self, *args, **kwargs):
         # Calculate total based on quantity and price

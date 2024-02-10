@@ -477,3 +477,13 @@ def delete_invoice(request , invoice_id):
     else:
         messages.warning(request, ('You Are Not Allowed to do this'))
         return redirect(home)
+    
+def show_invoice_history(request , invoice_id):
+    if request.session.has_key('user'):
+        return redirect(home)
+    if request.session.has_key('admin'):  
+        invoice = get_object_or_404(Invoice, pk=invoice_id)
+        history = invoice.history.all()
+        return render(request, 'loginreg/show_invoice_history.html', {'invoice': invoice, 'history': history})
+    else:
+        return redirect(admin)
