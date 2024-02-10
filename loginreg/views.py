@@ -6,6 +6,30 @@ from hashlib import sha256
 from django.contrib import messages
 from django.db.models import Q
 from .forms import InvoiceForm, ItemFormSet
+from django.core.mail import send_mail
+from django.conf import settings
+import random
+
+from io import BytesIO
+from django.template.loader import get_template
+from django.views import View
+from xhtml2pdf import pisa
+
+
+# Sending email 
+def generation_otp():
+    otp = ""
+    for i in range(6):
+        otp += str(random.randint(0, 9))
+    return otp
+def send_email_to_client(email):
+    subject = "Email Verification from Aryansh Electricals"
+    otp_code = generation_otp()
+    message = f'Your OTP code is :{otp_code}'
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail(subject, message, from_email, recipient_list)
+    return otp_code
 
 def home(request):
     if request.session.has_key('admin'):
@@ -91,9 +115,9 @@ def signup(request):
         return redirect(home)
     else:    
         if request.POST:
-            uname = request.POST['uname']
-            email = request.POST['email']
-            passw = request.POST['pass']
+            uname = request.POST.get('uname', '')
+            email = request.POST.get('email', '')
+            passw = request.POST.get('pass', '')
             passwenc = sha256(passw.encode()).hexdigest()
             user = User.objects.filter(name=uname)
             if user:
@@ -105,16 +129,16 @@ def signup(request):
                     messages.error(request, 'email already exists!')
                     return render(request, 'loginreg/signup.html')
                 else:
-                    obj = User()
-                    obj.name = uname
-                    obj.password = passwenc
-                    obj.email = email
-                    # obj.save(commit=False)
-                    obj.status = False
-                    obj.save()
-                    request.session['login'] = 1
-                    request.session['user'] = uname
-                    return redirect(home)
+                    otp_code = send_email_to_client(email)
+                    request.session['otp_code'] = otp_code 
+                    request.session['signup_data'] = {
+                        'uname_u': uname,
+                        'email': email,
+                        'password':passwenc
+                    }    
+                    print(uname)
+                    messages.success(request, 'OTP has been sent on your registered Email')
+                    return redirect('verify_otp')
         else:
             return render(request, 'loginreg/signup.html')
 
@@ -201,6 +225,7 @@ def admin_create_invoice(request):
                     item.save()
 
                 invoice.save()
+                messages.success(request , "New Invoice has been created")
                 return redirect(admin_invoices)
             else:
                 # Handle form validation errors
@@ -227,11 +252,11 @@ def admin_update_invoice(request, invoice_id):
             return redirect(admin_invoices)
         else:
             # Handle form validation errors
-            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'invoice_id': invoice_id})
     else:
         invoice_form = InvoiceForm(instance=invoice)
         item_formset = ItemFormSet(instance=invoice, prefix='items')
-        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'invoice_id': invoice_id})
 
 def admin_delete_invoice(request , invoice_id):
     invoice = Invoice.objects.get(id=invoice_id)
@@ -333,7 +358,9 @@ def block(request):
                 request.session['unblocked'] = 1  
                 request.session['block'] = 0  
             request.session['blockid'] = id    
-            return redirect(view)    
+            return redirect(view)  
+    else:
+        return redirect(admin)  
 
 def search(request):
     if request.session.has_key('user'):
@@ -350,12 +377,20 @@ def search(request):
             else:
                 request.session['searchuser'] = 1
                 return redirect(admin)
+    else:
+        return redirect(admin)
+    
 
 
 
 def adminlogout(request):
-    request.session.flush()
-    return redirect(admin)
+    if request.session.has_key('user'):
+        return redirect(home)
+    if request.session.has_key('admin'): 
+        request.session.flush()
+        return redirect(admin)
+    else:
+        return redirect(admin)
 
 def create(request):
     if request.session.has_key('user'):
@@ -383,6 +418,8 @@ def create(request):
                     return redirect(admin)
         else:    
             return render(request, 'loginreg/create.html')
+    else:
+        return redirect(admin)
 
 
 def create_invoice(request):
@@ -412,6 +449,7 @@ def create_invoice2(request):
                     item.save()
 
                 invoice.save()
+                messages.success(request , "New Invoice has been created")
                 return redirect(home)
             else:
                 # Handle form validation errors
@@ -433,8 +471,7 @@ def update_invoice(request, invoice_id):
     return update_invoice2(request, invoice_id)
 
 def update_invoice2(request, invoice_id):
-        
-    user_instance = User.objects.get(name=request.session['user'])
+            
     invoice = get_object_or_404(Invoice, id=invoice_id)
     if request.method == 'POST':
         invoice_form = InvoiceForm(request.POST, instance=invoice)
@@ -448,11 +485,11 @@ def update_invoice2(request, invoice_id):
             return redirect(home)
         else:
             # Handle form validation errors
-            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+            return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'invoice_id': invoice_id})
     else:
         invoice_form = InvoiceForm(instance=invoice)
         item_formset = ItemFormSet(instance=invoice, prefix='items')
-        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset})
+        return render(request, 'loginreg/update_invoice.html', {'invoice_form': invoice_form, 'item_formset': item_formset, 'invoice_id': invoice_id})
 
 def delete_invoice(request , invoice_id):
     user_instance = User.objects.get(name=request.session['user'])
@@ -464,3 +501,90 @@ def delete_invoice(request , invoice_id):
     else:
         messages.warning(request, ('You Are Not Allowed to do this'))
         return redirect(home)
+    
+def show_invoice_history(request , invoice_id):
+    if request.session.has_key('user'):
+        return redirect(home)
+    if request.session.has_key('admin'):  
+        invoice = get_object_or_404(Invoice, pk=invoice_id)
+        history = invoice.history.all()
+        return render(request, 'loginreg/show_invoice_history.html', {'invoice': invoice, 'history': history})
+    else:
+        return redirect(admin)
+
+
+
+# OTP
+def verify_otp(request):
+    signup_data = request.session.get('signup_data', {})
+    uname = signup_data.get('uname_u')
+    email = signup_data.get('email')
+    password = signup_data.get('password')
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+        user_email = request.POST.get('email')
+        if 'otp_code' in request.session:
+            otp_code = request.session['otp_code']
+            del request.session['otp_code']  # Remove the OTP code from the session
+
+            if entered_otp == otp_code:
+                print("Till here ------")
+
+                obj = User()
+                obj.name = uname
+                obj.email = email
+                obj.password = password
+                obj.status = False
+                obj.save()
+
+                print("Done-----------")
+                request.session['login'] = 1
+                request.session['user'] = uname
+
+                del request.session['signup_data']
+
+                return redirect(home)
+            # OTP is incorrect, display an error message
+        messages.error(request, 'Invalid OTP. Please try again.')
+        return render(request, 'loginreg/otp_verification.html', {'user_email': user_email})
+    else:
+        return render(request, 'loginreg/otp_verification.html', {'user_email': email})
+
+
+
+
+# PDF
+
+def render_to_pdf(template_src, context_dict={}):
+	template = get_template(template_src)
+	html  = template.render(context_dict)
+	result = BytesIO()
+	pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)    
+	if not pdf.err:
+		return HttpResponse(result.getvalue(), content_type='application/pdf')
+	return None
+
+#Opens up page as PDF
+class pdf_view(View):
+    def get(self, request,invoice_id, *args, **kwargs):
+        invoice = get_object_or_404(Invoice, id=invoice_id)
+        items = Item.objects.filter(invoice=invoice)
+        data = {
+            'invoice': invoice,
+            'items': items
+        }
+        pdf = render_to_pdf('loginreg/pdf_template.html', data)
+        return HttpResponse(pdf, content_type='application/pdf')
+
+
+#Automaticly downloads to PDF file
+# class DownloadPDF(View):
+# 	def get(self, request, *args, **kwargs):
+		
+# 		pdf = render_to_pdf('loginreg/pdf_template.html', data)
+
+# 		response = HttpResponse(pdf, content_type='application/pdf')
+# 		filename = "Invoice_%s.pdf" %("12341231")
+# 		content = "attachment; filename='%s'" %(filename)
+# 		response['Content-Disposition'] = content
+# 		return response

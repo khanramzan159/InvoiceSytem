@@ -14,12 +14,11 @@
     <title> HOME - {% if user %}{{user}}{% endif %}</title>
 
     <style>
-      .invoice-container {
-          margin-top: 50px;
+      .main{
+        background-color: white;
       }
-  
+
       .invoice {
-          background-color: #f8f9fa;
           padding: 20px;
           border-radius: 10px;
           display: flex;
@@ -35,32 +34,9 @@
           justify-content: space-between; /* Space between children */
       }
 
-      /*
-      #formset-items{
-        display: flex;
-        flex-direction: row; 
-        justify-content: center; 
-        margin-top: 30px; 
-        margin-bottom: 30px;
-      }
-      #formset-items .form-control{
-        height: 50px;
-      }
-      */
       .form-control{
         height: 50px;
       }
-      /*
-      .item-form-row{
-        display: flex;
-        flex-direction: row; 
-        justify-content: center; 
-      }
-
-      .item-form-row .form-control{
-        height: 50px;
-      }
-      */
   
       .form-group label {
           width: 30%; /* Adjust label width as needed */
@@ -95,53 +71,123 @@
     </nav>
 
     <div class="main">
-        <div class="invoice-container container">
-            <div class="container invoice form text-center my-3">
-              <h2 class="text-center">Create New Invoice</h2>
-              <form method="post" class="main-invoice-form text-center">
+        <div class="invoice-container ">
+            <div class=" invoice form text-center">
+              <h2 class="text-center mb-5">Create New Invoice</h2>
+              <form method="post" enctype="multipart/form-data" id="invoice_form" class="main-invoice-form text-center">
+
                 {% csrf_token %}
-                <div>
-                  {{ invoice_form.as_p }}
-                </div>
+
                 {{ item_formset.management_form }}
-                <div id="formset-items">
-                  {% for form in item_formset %}
-                    {{ form.as_table }}
-                  {% endfor %}
+                <script type="text/html" id="formset-items-template">  // id="inlineformsetname-template"
+                  // id='inlineformsetname-__prefix__' 
+                  <tr id="formset-items-__prefix__" class= hide_all>
+                      {% for fields in item_formset.empty_form.hidden_fields %}
+                          {{ fields }}
+                      {% endfor %}
+                  
+                      {% for fields in item_formset.empty_form.visible_fields %}
+                          <td>{{fields}}</td>
+                      {% endfor %}
+                  </tr>
+                </script>
+                
+                <div class="row justify-content-center align-items-start">
+                    <div class="col-md-6 mx-5">
+                        <div class="px-3 mb-3" style="text-align: start; color: rgb(46, 103, 103);">
+                            <h4>From,</h4>
+                            <h6>Aaryansh Electricals <br>C-702, Atharvaved, Vendant CHS, Wayale nagar, kalyan(W), <br>Thane - 421301, Maharashtra, India <br>7045184111 <br><a href="mailto:support@aaryansh.co.in" target="_blank">support@aaryansh.co.in</a> </h6>
+                        </div>
+                        <div class="table-responsive pb-5" style="height: fit-content; border-radius: 10px; background-color: rgb(239, 238, 238);">
+                            <div class="card-header card-header-secondary">
+                                <h4 class="card-title">Add Items</h4>
+                            </div>
+                            <table class="table card-body">
+                                <thead class="text-secondary">
+                                    <th>Item No. <span style="color: red;" class="required">*</span></th>
+                                    <th>Item Name <span style="color: red;" class="required">*</span></th>
+                                    <th>Quantity <span style="color: red;" class="required">*</span></th>
+                                    <th>Price <span style="color: red;" class="required">*</span></th>
+                                    <th class="text-danger">Delete?</th>
+                                </thead>
+                                <tbody id="formset-items">  <!-- id="item-inlineformsetname" -->
+                                    <!-- formset non forms errors -->
+                                    {% for error in item_formset.non_form_errors %}
+                                        <span style="color: red">{{ error }}</span>
+                                    {% endfor %}
+                                    {% for formss in item_formset %}
+                                        {{ formss.management_form }}
+                                        <tr id="formset-items-{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                                            {{ formss.id }}
+                                            {% for field in formss.visible_fields %}
+                                                <td>
+                                                    {{field}}
+                                                    {% for error in field.errors %}
+                                                        <span style="color: red">{{ error }}</span>
+                                                    {% endfor %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <a href="#" id="add-items-button" class="btn btn-primary add-items">Add More</a> <!-- id="add-inlineformsetname-button" -->
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <h4 class="px-3 pb-3" style="text-align: start; color: rgb(46, 103, 103);">To,</h4>
+                        <!-- main form start --- in our case product form -->
+                        <div class="pt-4 pb-2" style="border-radius: 10px; background-color: rgb(239, 238, 238);">
+                            
+                            {% for field in invoice_form %}
+                                <div class="form-group card-body">
+                                    <label>{{field.label}}</label>
+                                    {% if field.field.required %}
+                                        <span style="color: red;" class="required">*</span>
+                                    {% endif %}
+                                
+                                    {{field}}
+                                    {% if field.help_text %}
+                                        <small style="color: grey">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <p style="color: red">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-4"><button type="button" id="add-item" class="btn btn-primary my-4">Add Item</button></div>
-                <button type="submit">Create Invoice</button>
+                <div class="mt-5" >
+                    <button type="submit" class="btn btn-success px-5 text-center" style="width: fit-content;">Create Invoice</button>
+                </div>
               </form>
             </div>
         </div>
     </div>
 
-    <!-- Template for the item form -->
-    <script id="item-form-template" type="text/template">
-      {{ item_formset.empty_form.as_table }}
-    </script>
-  
+    
+    <!-- jquery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <script>
+
       $(document).ready(function() {
-        var formsetItems = $('#formset-items');
-        var addItemButton = $('#add-item');
-        var itemFormTemplate = $('#item-form-template').html();
-        
-        addItemButton.click(function() {
-          // Get the total number of forms
-          var totalForms = parseInt($('#id_items-TOTAL_FORMS').val());
-  
-          // Replace "__prefix__" with the new form index
-          var newItemForm = itemFormTemplate.replace(/__prefix__/g, totalForms);
-          
-          // Append the new form to the formset
-          formsetItems.after('<div class="item-form-row">' + newItemForm + '</div>' + '<br>');
-  
-          // Update the total forms count
-          $('#id_items-TOTAL_FORMS').val(totalForms + 1);
-        });
+        // when user clicks add more btn of variants
+          $('.add-items').click(function(ev) {
+              ev.preventDefault();
+              var count = $('#formset-items').children().length;
+              var tmplMarkup = $('#formset-items-template').html();
+              var compiledTmpl = tmplMarkup.replace(/__prefix__/g, count);
+              $('#formset-items').append(compiledTmpl);
+      
+              // update form count
+              $('#id_items-TOTAL_FORMS').attr('value', count+1);
+          });
       });
+
+
     </script>
 </body>
 </html>
