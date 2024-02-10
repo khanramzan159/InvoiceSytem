@@ -109,28 +109,32 @@
                                 <th>Amount Due</th>
                                 <th>Comment</th>
                                 <th>Saved By</th>
+                                <th>Edit</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for record in history %}
-                                <tr>
-                                    <td>{{ invoice }}</td>
-                                    <td>{{ record.history_date }}</td>
-                                    <td>{{ record.customer_name }}</td>
-                                    <td>{{ record.all_total }}</td>
-                                    <td>{{ record.amount_paid }}</td>
-                                    <td>{{ record.amount_due }}</td>
-                                    <td>
-                                        {% if record.history_type == '+' %}
-                                            Created
-                                        {% elif record.history_type == '~' %}
-                                            Changed
-                                        {% elif record.history_type == '-' %}
-                                            Deleted
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ record.created_by }}</td>
-                                </tr>
+                                {% ifchanged record.all_total or record.customer_name or record.amount_paid or record.amount_due or record.address or record.gst or record.note  %}
+                                    <tr>
+                                        <td>{{ invoice }}</td>
+                                        <td>{{ record.history_date }}</td>
+                                        <td>{{ record.customer_name }}</td>
+                                        <td>{{ record.all_total }}</td>
+                                        <td>{{ record.amount_paid }}</td>
+                                        <td>{{ record.amount_due }}</td>
+                                        <td>
+                                            {% if record.history_type == '+' %}
+                                                Created
+                                            {% elif record.history_type == '~' %}
+                                                Changed
+                                            {% elif record.history_type == '-' %}
+                                                Deleted
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.created_by }}</td>
+                                        <td><a href="{% url 'admin_update_invoice' invoice.id %}" class="text-decoration-none"><i class="bi bi-pencil-square text-primary"></i></a></td>
+                                    </tr>
+                                {% endifchanged %}
                             {% endfor %}
                         </tbody>
                     </table>

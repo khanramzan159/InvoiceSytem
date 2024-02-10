@@ -9,7 +9,7 @@ class User(models.Model):
     password = models.CharField(max_length=100)
     status = models.IntegerField(default=1)
     def __str__(self):
-        return self.name + '-' + self.email
+        return self.email
     
 class Admin(models.Model):
     username = models.CharField(max_length=100)
