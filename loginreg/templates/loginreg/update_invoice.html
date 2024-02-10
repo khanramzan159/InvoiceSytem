@@ -15,7 +15,7 @@
 
     <style>
       .main{
-        background-color: rgb(238, 238, 238);
+        background-color: white;
       }
 
       .invoice {
@@ -71,33 +71,12 @@
     </nav>
 
     <div class="main">
-        <div class="invoice-container container">
-            <div class="container invoice form text-center">
-              <!-- <h2 class="text-center">Create New Invoice</h2> -->
+        <div class="invoice-container ">
+            <div class=" invoice form text-center">
+              <h2 class="text-center mb-5">Update Invoice - {{invoice_id}}</h2>
               <form method="post" enctype="multipart/form-data" id="invoice_form" class="main-invoice-form text-center">
+
                 {% csrf_token %}
-                <!-- main form start --- in our case product form -->
-                <div class="card">
-                    <div class="card-header card-header-secondary">
-                        <h4 class="card-title">Update Invoice - {{invoice_id}}</h4>
-                    </div>
-                    {% for field in invoice_form %}
-                        <div class="form-group card-body">
-                            <label>{{field.label}}</label>
-                            {% if field.field.required %}
-                                <span style="color: red;" class="required">*</span>
-                            {% endif %}
-                        
-                            {{field}}
-                            {% if field.help_text %}
-                                <small style="color: grey">{{ field.help_text }}</small>
-                            {% endif %}
-                            {% for error in field.errors %}
-                                <p style="color: red">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-                </div>
 
                 {{ item_formset.management_form }}
                 <script type="text/html" id="formset-items-template">  // id="inlineformsetname-template"
@@ -113,43 +92,75 @@
                   </tr>
                 </script>
                 
-                <div class="table-responsive card mt-4">
-                  <div class="card-header card-header-secondary">
-                      <h4 class="card-title">Add Items</h4>
-                  </div>
-                    <table class="table card-body">
-                      <thead class="text-secondary">
-                          <th>Item No. <span style="color: red;" class="required">*</span></th>
-                          <th>Item Name <span style="color: red;" class="required">*</span></th>
-                          <th>Quantity <span style="color: red;" class="required">*</span></th>
-                          <th>Price <span style="color: red;" class="required">*</span></th>
-                          <th class="text-danger">Delete?</th>
-                      </thead>
-                      <tbody id="formset-items">  <!-- id="item-inlineformsetname" -->
-                          <!-- formset non forms errors -->
-                          {% for error in item_formset.non_form_errors %}
-                              <span style="color: red">{{ error }}</span>
-                          {% endfor %}
-                          {% for formss in item_formset %}
-                              {{ formss.management_form }}
-                              <tr id="formset-items-{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
-                                  {{ formss.id }}
-                                  {% for field in formss.visible_fields %}
-                                      <td>
-                                          {{field}}
-                                          {% for error in field.errors %}
-                                              <span style="color: red">{{ error }}</span>
-                                          {% endfor %}
-                                      </td>
-                                  {% endfor %}
-                              </tr>
-                          {% endfor %}
-                      </tbody>
-                    </table>
-                    <a href="#" id="add-items-button" class="btn btn-primary add-items">Add More</a> <!-- id="add-inlineformsetname-button" -->
+                <div class="row justify-content-center align-items-start">
+                    <div class="col-md-6 mx-5">
+                        <div class="px-3 mb-3" style="text-align: start; color: rgb(46, 103, 103);">
+                            <h4>From,</h4>
+                            <h6>Aaryansh Electricals <br>C-702, Atharvaved, Vendant CHS, Wayale nagar, kalyan(W), <br>Thane - 421301, Maharashtra, India <br>7045184111 <br><a href="mailto:support@aaryansh.co.in" target="_blank">support@aaryansh.co.in</a> </h6>
+                        </div>
+                        <div class="table-responsive pb-5" style="height: fit-content; border-radius: 10px; background-color: rgb(239, 238, 238);">
+                            <div class="card-header card-header-secondary">
+                                <h4 class="card-title">Add Items</h4>
+                            </div>
+                            <table class="table card-body">
+                                <thead class="text-secondary">
+                                    <th>Item No. <span style="color: red;" class="required">*</span></th>
+                                    <th>Item Name <span style="color: red;" class="required">*</span></th>
+                                    <th>Quantity <span style="color: red;" class="required">*</span></th>
+                                    <th>Price <span style="color: red;" class="required">*</span></th>
+                                    <th class="text-danger">Delete?</th>
+                                </thead>
+                                <tbody id="formset-items">  <!-- id="item-inlineformsetname" -->
+                                    <!-- formset non forms errors -->
+                                    {% for error in item_formset.non_form_errors %}
+                                        <span style="color: red">{{ error }}</span>
+                                    {% endfor %}
+                                    {% for formss in item_formset %}
+                                        {{ formss.management_form }}
+                                        <tr id="formset-items-{{ forloop.counter0 }}" class= hide_all>  <!-- id="inlineformsetname-counter" -->
+                                            {{ formss.id }}
+                                            {% for field in formss.visible_fields %}
+                                                <td>
+                                                    {{field}}
+                                                    {% for error in field.errors %}
+                                                        <span style="color: red">{{ error }}</span>
+                                                    {% endfor %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <a href="#" id="add-items-button" class="btn btn-primary add-items">Add More</a> <!-- id="add-inlineformsetname-button" -->
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <h4 class="px-3 pb-3" style="text-align: start; color: rgb(46, 103, 103);">To,</h4>
+                        <!-- main form start --- in our case product form -->
+                        <div class="pt-4 pb-2" style="border-radius: 10px; background-color: rgb(239, 238, 238);">
+                            
+                            {% for field in invoice_form %}
+                                <div class="form-group card-body">
+                                    <label>{{field.label}}</label>
+                                    {% if field.field.required %}
+                                        <span style="color: red;" class="required">*</span>
+                                    {% endif %}
+                                
+                                    {{field}}
+                                    {% if field.help_text %}
+                                        <small style="color: grey">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <p style="color: red">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group mt-5">
-                    <button type="submit" class="btn btn-success btn-block">Save</button>
+                <div class="mt-5" >
+                    <button type="submit" class="btn btn-success px-5 text-center" style="width: fit-content;">Save Invoice</button>
                 </div>
               </form>
             </div>

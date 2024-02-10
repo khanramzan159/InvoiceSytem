@@ -201,6 +201,7 @@ def admin_create_invoice(request):
                     item.save()
 
                 invoice.save()
+                messages.success(request , "New Invoice has been created")
                 return redirect(admin_invoices)
             else:
                 # Handle form validation errors
@@ -424,6 +425,7 @@ def create_invoice2(request):
                     item.save()
 
                 invoice.save()
+                messages.success(request , "New Invoice has been created")
                 return redirect(home)
             else:
                 # Handle form validation errors
