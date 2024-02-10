@@ -27,4 +27,6 @@ urlpatterns = [
     path('create_invoice', views.create_invoice),
     path('update_invoice/<int:invoice_id>/', views.update_invoice, name='update_invoice'),
     path('delete_invoice/<int:invoice_id>/', views.delete_invoice, name='delete_invoice'),
+    path('verify_otp', views.verify_otp, name='verify_otp'),
+    path('pdf_view/<int:invoice_id>', views.pdf_view.as_view(), name="pdf_view")
 ]
