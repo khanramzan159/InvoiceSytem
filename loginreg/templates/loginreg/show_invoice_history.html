@@ -88,12 +88,14 @@
                 <div id="error" class="mr-auto container" style="display: inline-block; color: red;"></div>
                     <div class="container px-2">
                         {% if messages %}
-                            {% for message in messages %}
-                            <div class="alert alert-warning alert-dismissible fade show row justify-content-between" role="alert">
-                                <h5 class="mx-5">{{message}}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x"></i></button>
+                        {% for message in messages %}
+                            <div class="alert alert-warning alert-dismissible fade show d-flex justify-content-between m-5" role="alert">
+                                <h5 class="mx-3">{{ message }}</h5>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            {% endfor %}
+                        {% endfor %}
                         {% endif %}
                     </div>
 

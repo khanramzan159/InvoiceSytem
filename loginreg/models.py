@@ -20,14 +20,14 @@ class Invoice(models.Model):
     address = models.TextField()
     gst = models.DecimalField(max_digits=5, decimal_places=2, default=18.00)
     amount_paid = models.DecimalField(max_digits=20, decimal_places=2)
-    amount_due = models.DecimalField(max_digits=20, decimal_places=2)
+    amount_due = models.DecimalField(max_digits=20, decimal_places=2, editable=False, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     subtotal = models.DecimalField(max_digits=20, decimal_places=2, editable=False, null=True)
     gst_rate = models.DecimalField(max_digits=20, decimal_places=2, editable=False, null=True)
     all_total = models.DecimalField(max_digits=20, decimal_places=2, editable=False, null=True)
-    note = models.TextField(null=True)
+    note = models.TextField(null=True, blank=True)
     history = HistoricalRecords(user_model=User)
 
     def save(self, *args, **kwargs):
@@ -36,6 +36,7 @@ class Invoice(models.Model):
         self.subtotal = self.items.aggregate(total=Sum('total'))['total'] or 0
         self.gst_rate = (self.gst / 100) * self.subtotal  # Update gst_rate based on gst and subtotal
         self.all_total = self.subtotal + self.gst_rate  # Update all_total based on subtotal and gst_rate
+        self.amount_due = self.all_total - self.amount_paid
         super(Invoice, self).save(*args, **kwargs)
 
     def __str__(self):
