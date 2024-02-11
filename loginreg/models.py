@@ -29,6 +29,7 @@ class Invoice(models.Model):
     all_total = models.DecimalField(max_digits=20, decimal_places=2, editable=False, null=True)
     note = models.TextField(null=True, blank=True)
     history = HistoricalRecords(user_model=User)
+    email = models.CharField(max_length=100, null=True)
 
     def save(self, *args, **kwargs):
         super(Invoice, self).save(*args, **kwargs)  # Save the Invoice instance first

@@ -5,9 +5,10 @@ from .models import Invoice, Item
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
-        fields = ['customer_name', 'address', 'gst', 'amount_paid', 'note']
+        fields = ['customer_name', 'email', 'address', 'gst', 'amount_paid', 'note']
         widgets = {
             'customer_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control'}),
             'note': forms.Textarea(attrs={'class': 'form-control'}),
             'gst': forms.NumberInput(attrs={'class': 'form-control', 'readonly': True}),
@@ -16,6 +17,10 @@ class InvoiceForm(forms.ModelForm):
             'subtotal': forms.NumberInput(attrs={'class': 'form-control', 'readonly': True}),
             'gst_rate': forms.NumberInput(attrs={'class': 'form-control', 'readonly': True}),
             'all_total': forms.NumberInput(attrs={'class': 'form-control', 'readonly': True}),
+        }
+        labels = {
+            'customer_name': 'Company Name',
+            'email': 'Company Email',
         }
 
 class ItemForm(forms.ModelForm):
