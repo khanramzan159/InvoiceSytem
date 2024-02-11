@@ -598,3 +598,19 @@ def pdf_view2(request, invoice_id):
     else:
         return HttpResponse("Error generating PDF", status=500)
 
+def pdf_history_view(request, invoice_id):
+    if request.session.has_key('admin'):
+        return pdf_history_view2(request, invoice_id)
+    else:
+        return HttpResponse("404 PAGE NOT FOUND", status=404)
+    
+def pdf_history_view2(request, invoice_id):  
+    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    history = invoice.history.all()
+
+    pdf = render_to_pdf('loginreg/pdf_history_view.html', {'invoice': invoice, 'history': history})
+    
+    if pdf:
+        return pdf
+    else:
+        return HttpResponse("Error generating PDF", status=500)
