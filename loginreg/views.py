@@ -58,7 +58,8 @@ def home(request):
 def changepassword(request):
     if request.session.has_key('admin'):
         return redirect(admin)
-    if request.session.has_key('login'):
+    user_instance = User.objects.get(name=request.session['user'])
+    if request.session.has_key('login') and user_instance.status==1:
         if request.session.has_key('update'):
             messages.success(request, 'Password updated!')
             del request.session['update']
@@ -75,7 +76,7 @@ def changepassword(request):
         }   
         return render(request, 'loginreg/change_pass.html', context)
     else:   
-        return render(request, 'loginreg/index.html')
+        return redirect(home)
 
 def login(request):
     if request.session.has_key('login'):
@@ -90,6 +91,7 @@ def login(request):
                 user = User.objects.get(name=uname)
                 request.session['login'] = 1
                 request.session['user'] = uname
+                messages.success(request, 'You are logged in Successfully.')
                 return redirect(home)
                 # if user.status == 1:
                 #     request.session['login'] = 1
@@ -546,7 +548,7 @@ def verify_otp(request):
                 request.session['user'] = uname
 
                 del request.session['signup_data']
-
+                messages.success(request, 'You are logged in Successfully.')
                 return redirect(home)
             # OTP is incorrect, display an error message
         messages.error(request, 'Invalid OTP. Please try again.')
