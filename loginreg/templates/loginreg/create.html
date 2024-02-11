@@ -78,35 +78,35 @@
                         </div>
                     </div>
                 </nav>
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <form action="create" method="POST" name="upform">
-                                {% csrf_token %}
-                                <div class="form-row">
-                                    <div class="form-group col-md-12">
-                                    <h3>Create new user</h3>
-                                </div>
-                                  <div class="form-group col-md-6">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <form action="create" method="POST" name="upform">
+                            {% csrf_token %}
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                <h3>Create new user</h3>
+                            </div>
+                                <div class="form-group col-md-6">
                                     <label for="inputEmail4">USERNAME</label>
                                     <input type="text" class="form-control" name="username" id="inputEmail4" placeholder="Username">
-                                  </div>
-                                  <div class="form-group col-md-6">
+                                </div>
+                                <div class="form-group col-md-6">
                                     <label for="inputPassword4">EMAIL</label>
                                     <input type="email" class="form-control" name="email" id="inputPassword4" placeholder="Email">
-                                  </div>
-                                    <div class="form-group col-md-6">
+                                </div>
+                                <div class="form-group col-md-6">
                                     <label for="inputAddress">PASSWORD</label>
                                     <input type="password" class="form-control" name="pass" id="inputAddress" placeholder="Password">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="inputAddress">CONFIRM-PASSWORD</label>
-                                        <input type="password" class="form-control" name="pass1" id="inputAddress" placeholder="Re-type password">
-                                        </div>
-                                    <div class="form-group col-md-6">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="inputAddress">CONFIRM-PASSWORD</label>
+                                    <input type="password" class="form-control" name="pass1" id="inputAddress" placeholder="Re-type password">
+                                </div>
+                                <div class="form-group col-md-6">
                                     <button type="submit" onclick="return validate()" class="btn btn-primary">Add User</button>
                                 </div>
-                                </div>
-                                <script>
+                            </div>
+                            <script>
                                 function validate(){
                                     var uname = document.upform.username.value;
                                     if(uname == ''){
@@ -151,29 +151,28 @@
                                     }
                                 }
                             </script>
-                              </form>
-                            </div>
-                            <div class="col-lg-6">
-                                <div id="error" style="margin-top: 20px;;"></div>
-                                {% if error%}
-                                <br><br>
-                                <p>Error log:</p>
-                                <div class="alert alert-danger" role="alert">
-                                 {{error}}
-                                </div>
-                                {% endif %}
-                                {% if messages %}
-                                <br><br>
-                                <p>Error log:</p>
-                                <div class="alert alert-danger" role="alert">
-                                    {% for message in messages %}
-                                      {{message}}
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div> 
+                        </form>
                     </div>
+                    <div class="col-lg-6">
+                        <div id="error" style="margin-top: 20px;;"></div>
+                        {% if error%}
+                        <br><br>
+                        <p>Error log:</p>
+                        <div class="alert alert-danger" role="alert">
+                            {{error}}
+                        </div>
+                        {% endif %}
+                        {% if messages %}
+                        <br><br>
+                        <p>Error log:</p>
+                        <div class="alert alert-danger" role="alert">
+                            {% for message in messages %}
+                                {{message}}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div> 
             </div>
         </div>
 
@@ -181,19 +180,16 @@
 
 
 
-        <!-- jQuery CDN -->
-         <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-         <!-- Bootstrap Js CDN -->
-         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
-         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
-         crossorigin="anonymous"></script>
-
-         <script type="text/javascript">
-             $(document).ready(function () {
-                 $('#sidebarCollapse').on('click', function () {
-                     $('#sidebar').toggleClass('active');
-                 });
-             });
-         </script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar').toggleClass('active');
+                });
+            });
+        </script>
     </body>
 </html>
