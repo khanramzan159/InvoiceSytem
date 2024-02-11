@@ -556,35 +556,39 @@ def verify_otp(request):
 # PDF
 
 def render_to_pdf(template_src, context_dict={}):
-	template = get_template(template_src)
-	html  = template.render(context_dict)
-	result = BytesIO()
-	pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)    
-	if not pdf.err:
-		return HttpResponse(result.getvalue(), content_type='application/pdf')
-	return None
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
 
-#Opens up page as PDF
-class pdf_view(View):
-    def get(self, request,invoice_id, *args, **kwargs):
+
+def pdf_view(request, invoice_id):
+    if request.session.has_key('admin'):
+        return pdf_view2(request, invoice_id)
+    elif request.session.has_key('login'):
+        user_instance = User.objects.get(name=request.session['user'])
         invoice = get_object_or_404(Invoice, id=invoice_id)
-        items = Item.objects.filter(invoice=invoice)
-        data = {
-            'invoice': invoice,
-            'items': items
-        }
-        pdf = render_to_pdf('loginreg/pdf_template.html', data)
-        return HttpResponse(pdf, content_type='application/pdf')
+        if user_instance.status != 0 and invoice.created_by == user_instance:
+            return pdf_view2(request, invoice_id)
+        else:
+            return HttpResponse("404 PAGE NOT FOUND", status=404)
+    else:
+        return HttpResponse("404 PAGE NOT FOUND", status=404)
 
+def pdf_view2(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    items = Item.objects.filter(invoice=invoice)
+    data = {
+        'invoice': invoice,
+        'items': items
+    }
+    pdf = render_to_pdf('loginreg/pdf_template.html', data)
+    
+    if pdf:
+        return pdf
+    else:
+        return HttpResponse("Error generating PDF", status=500)
 
-#Automaticly downloads to PDF file
-# class DownloadPDF(View):
-# 	def get(self, request, *args, **kwargs):
-		
-# 		pdf = render_to_pdf('loginreg/pdf_template.html', data)
-
-# 		response = HttpResponse(pdf, content_type='application/pdf')
-# 		filename = "Invoice_%s.pdf" %("12341231")
-# 		content = "attachment; filename='%s'" %(filename)
-# 		response['Content-Disposition'] = content
-# 		return response
