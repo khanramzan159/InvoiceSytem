@@ -39,6 +39,21 @@
         <section class="signup" style="margin-top: -120px !important;">
             <div class="container">
                 <div class="signup-content">
+                    <div class="signup-image">
+                        {% comment %} <figure><img src="{% static 'loginreg/images/signup-image.jpg' %}" alt="sing up image"></figure> {% endcomment %}
+                        <script
+                            src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
+                            type="module"
+                        ></script>
+                        <dotlottie-player
+                            src="https://lottie.host/e53f9531-1f58-4ece-9ec8-f2f2c134959e/zLIVPz4gy7.json"
+                            background="transparent"
+                            speed="0.3"
+                            style="width: 450px; height: 420px"
+                            autoplay
+                        ></dotlottie-player>
+                        <a href="/" class="signup-image-link">I am already member</a>
+                    </div>
                     <div class="signup-form">
                         <h2 class="form-title">Sign up</h2>
                         <form method="POST" action="signup" name="upform" class="register-form" id="register-form" autocomplete="off">
@@ -132,10 +147,6 @@
                             }
                         }
                     </script>
-                    <div class="signup-image">
-                        <figure><img src="{% static 'loginreg/images/signup-image.jpg' %}" alt="sing up image"></figure>
-                        <a href="/" class="signup-image-link">I am already member</a>
-                    </div>
                 </div>
             </div>
         </section>
