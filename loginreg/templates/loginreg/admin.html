@@ -106,28 +106,30 @@
                     {% endfor %}
                     <br>
                 {% endif %} 
-                <table class="table table-striped table-bordered table-hover">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">USERNAME</th>
-                        <th scope="col">EMAIL</th>
-                        <th scope="col">STATUS</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                    </thead>
-                        {% if dets %}
-                            {% for det in dets %}
-                                <tr>
-                                    <td>{{det.id}}</td>
-                                    <td><a style="color: blue; text-decoration: underline;" href="view?id={{det.id}}">{{det.name}}</a></td>
-                                    <td>{{det.email}}</td>
-                                    <td>{% if det.status == 1 %}Active{% else %}Blocked{% endif %}</td>
-                                    <td><a href="view?id={{det.id}}"><button class="btn btn-primary">VIEW</button></a> <a href="delete?id={{det.id}}"><button class="btn btn-danger">DELETE</button></a></td>  
-                                </tr>
-                            {% endfor %}
-                        {% endif %}
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">USERNAME</th>
+                            <th scope="col">EMAIL</th>
+                            <th scope="col">STATUS</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                        </thead>
+                            {% if dets %}
+                                {% for det in dets %}
+                                    <tr>
+                                        <td>{{det.id}}</td>
+                                        <td><a style="color: blue; text-decoration: underline;" href="view?id={{det.id}}">{{det.name}}</a></td>
+                                        <td>{{det.email}}</td>
+                                        <td>{% if det.status == 1 %}Active{% else %}Blocked{% endif %}</td>
+                                        <td><a href="view?id={{det.id}}"><button class="btn btn-primary">VIEW</button></a> <a href="delete?id={{det.id}}"><button class="btn btn-danger">DELETE</button></a></td>  
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                    </table>
+                </div>
             </div>
         </div>
             

@@ -463,12 +463,16 @@ def create_invoice2(request):
     
 
 def update_invoice(request, invoice_id):
-    user_instance = User.objects.get(name=request.session['user'])
-    invoice = get_object_or_404(Invoice, id=invoice_id)
-    if user_instance.status == 0 or invoice.created_by != user_instance:
-        messages.warning(request, ('You Are Not Allowed to do this'))
-        return redirect(home)
-    return update_invoice2(request, invoice_id)
+    if request.session.has_key('admin'):
+        return redirect(admin)
+    if request.session.has_key('login'):
+        user_instance = User.objects.get(name=request.session['user'])
+        invoice = get_object_or_404(Invoice, id=invoice_id)
+        if user_instance.status == 0 or invoice.created_by != user_instance:
+            messages.warning(request, ('You Are Not Allowed to do this'))
+            return redirect(home)
+        return update_invoice2(request, invoice_id)
+    return redirect(home)
 
 def update_invoice2(request, invoice_id):
             
