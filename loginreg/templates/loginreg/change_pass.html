@@ -101,8 +101,17 @@
                         <div class="form-group">
                           <input name="npass" type="password" class="form-control" id="exampleInputPassword1" placeholder="Enter new password">
                         </div>
-                        <div style="margin-top: 0px; display: none;" id="newerr">
+                        <div style="margin-top: 0px; display: none;" id="passlenerror">
                             <p style="color: red;">New password should be minimum 6 characters!</p>
+                        </div>
+                        <div style="margin-top: 0px; display: none;" id="passScharerror">
+                            <p style="color: red;">Password should be atleast one special character!</p>
+                        </div>
+                        <div style="margin-top: 0px; display: none;" id="passNumerror">
+                            <p style="color: red;">Password should be atleast one Number 0-9!</p>
+                        </div>
+                        <div style="margin-top: 0px; display: none;" id="passCaperror">
+                            <p style="color: red;">Password should be atleast one Capital Alphabet!</p>
                         </div>
                         {% if messages %}
                         <div style="margin-top: 0px;" id="update">
@@ -120,18 +129,48 @@
         </div>
         <script>
             function validate(){
-                if(document.cpass.curpass.value == ''){
-                    document.getElementById('curerr').style.display='block';
-                    return false;
-                } else {
-                    document.getElementById('curerr').style.display='none';
-                }
-                if(document.cpass.npass.value == '' || document.cpass.npass.value.length < 6){
-                    document.getElementById('newerr').style.display='block';
-                    return false;
-                } else {
-                    document.getElementById('newerr').style.display='none';
-                }
+              if(document.cpass.curpass.value == ''){
+                  document.getElementById('curerr').style.display='block';
+                  return false;
+              } else {
+                  document.getElementById('curerr').style.display='none';
+              }
+              var pass = document.cpass.npass.value;
+              pass = pass.trim();
+              if (pass.length < 8){
+                  document.getElementById('passlenerror').style.display='block';
+                  document.getElementById('passCaperror').style.display='none';
+                  document.getElementById('passNumerror').style.display='none';
+                  document.getElementById('passScharerror').style.display='none';
+                  return false;
+              }
+              else if (!/[!@#$%^&*(),.?":{}|<>]/.test(pass)){
+                  document.getElementById('passScharerror').style.display='block';
+                  document.getElementById('passlenerror').style.display='none';
+                  document.getElementById('passCaperror').style.display='none';
+                  document.getElementById('passNumerror').style.display='none';
+                  return false;
+              }
+              else if (!/[A-Z]/.test(pass)){
+                  document.getElementById('passCaperror').style.display='block';
+                  document.getElementById('passNumerror').style.display='none';
+                  document.getElementById('passScharerror').style.display='none';
+                  document.getElementById('passlenerror').style.display='none';
+                  return false;
+              }
+              else if (!/\d/.test(pass)){
+                  document.getElementById('passNumerror').style.display='block';
+                  document.getElementById('passlenerror').style.display='none';
+                  document.getElementById('passCaperror').style.display='none';
+                  document.getElementById('passScharerror').style.display='none';
+                  return false;
+              }
+              else {
+                  document.getElementById('passlenerror').style.display='none';
+                  document.getElementById('passCaperror').style.display='none';
+                  document.getElementById('passNumerror').style.display='none';
+                  document.getElementById('passScharerror').style.display='none';
+              }
             }
         </script>
     <!-- Optional JavaScript -->

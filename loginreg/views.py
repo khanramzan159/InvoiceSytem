@@ -64,7 +64,7 @@ def changepassword(request):
             messages.success(request, 'Password updated!')
             del request.session['update']
         if request.session.has_key('error'):
-            messages.error(request, 'Invalid password!')
+            messages.error(request, 'Enter the Correct Current Password')
             del request.session['error']    
         user = request.session['user']
         user_det = User.objects.get(name=user)
@@ -548,7 +548,7 @@ def verify_otp(request):
                 request.session['user'] = uname
 
                 del request.session['signup_data']
-                messages.success(request, 'You are logged in Successfully.')
+                messages.success(request, 'You are Registered and logged in Successfully.')
                 return redirect(home)
             # OTP is incorrect, display an error message
         messages.error(request, 'Invalid OTP. Please try again.')

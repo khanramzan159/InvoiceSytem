@@ -81,7 +81,16 @@
                                 <input type="password" name="pass" id="pass" placeholder="Password"/>
                             </div>
                             <div style="margin-top: -20px; display: none;" id="passlenerror">
-                                <p style="color: red;">Password should be atleast 6 characters!</p>
+                                <p style="color: red;">Password should be atleast 8 characters!</p>
+                            </div>
+                            <div style="margin-top: -20px; display: none;" id="passScharerror">
+                                <p style="color: red;">Password should be atleast one special character!</p>
+                            </div>
+                            <div style="margin-top: -20px; display: none;" id="passNumerror">
+                                <p style="color: red;">Password should be atleast one Number 0-9!</p>
+                            </div>
+                            <div style="margin-top: -20px; display: none;" id="passCaperror">
+                                <p style="color: red;">Password should be atleast one Capital Alphabet!</p>
                             </div>
                             <div class="form-group">
                                 <label for="re-pass"><i class="zmdi zmdi-lock"></i></label>
@@ -132,12 +141,39 @@
                             }
                             var pass = document.upform.pass.value;
                             pass = pass.trim();
-                            if (pass.length < 6){
+                            if (pass.length < 8){
                                 document.getElementById('passlenerror').style.display='block';
+                                document.getElementById('passCaperror').style.display='none';
+                                document.getElementById('passNumerror').style.display='none';
+                                document.getElementById('passScharerror').style.display='none';
                                 return false;
-                            } else {
+                            }
+                            else if (!/[!@#$%^&*(),.?":{}|<>]/.test(pass)){
+                                document.getElementById('passScharerror').style.display='block';
                                 document.getElementById('passlenerror').style.display='none';
-            
+                                document.getElementById('passCaperror').style.display='none';
+                                document.getElementById('passNumerror').style.display='none';
+                                return false;
+                            }
+                            else if (!/[A-Z]/.test(pass)){
+                                document.getElementById('passCaperror').style.display='block';
+                                document.getElementById('passNumerror').style.display='none';
+                                document.getElementById('passScharerror').style.display='none';
+                                document.getElementById('passlenerror').style.display='none';
+                                return false;
+                            }
+                            else if (!/\d/.test(pass)){
+                                document.getElementById('passNumerror').style.display='block';
+                                document.getElementById('passlenerror').style.display='none';
+                                document.getElementById('passCaperror').style.display='none';
+                                document.getElementById('passScharerror').style.display='none';
+                                return false;
+                            }
+                            else {
+                                document.getElementById('passlenerror').style.display='none';
+                                document.getElementById('passCaperror').style.display='none';
+                                document.getElementById('passNumerror').style.display='none';
+                                document.getElementById('passScharerror').style.display='none';
                             }
                             var repass = document.upform.re_pass.value;
                             repass = repass.trim();
