@@ -89,10 +89,37 @@
                     </div>
                 </nav>        
                 
-                <form method="get" action="{% url 'admin' %}" id="user-search" class="form-inline my-2 my-lg-0" autocomplete="off">
-                    <div class="mx-3">{{filter.form}}</div>
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                </form>
+                <div class="d-flex justify-content-between align-items-center">
+                    <form method="get" action="{% url 'admin' %}" id="user-search" class=" col-md-7 form-inline my-2 my-lg-0" autocomplete="off">
+                        <div class="mx-3">{{filter.form}}</div>
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                    </form>
+                    <nav class="col-md-4 my-5" aria-label="...">
+                        <ul class="pagination m-0">
+                            {% if dets.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" tabindex="-1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{dets.previous_page_number}}" tabindex="-1">Previous</a>
+                            </li>
+                            {% endif %}
+
+                            {% for n in totalPageList %}
+                                <li class="page-item"><a class="page-link" href="?page={{n}}">{{n}}</a></li>
+                            {% endfor %}
+
+                            {% if dets.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{dets.next_page_number}}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{lastpage}}">Last</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>                    
+                </div>
                 <br>
 
                 {% if messages %}

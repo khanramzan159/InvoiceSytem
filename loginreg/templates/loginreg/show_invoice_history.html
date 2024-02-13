@@ -134,7 +134,11 @@
                                                     Deleted
                                                 {% endif %}
                                             </td>
-                                            <td>{{ record.created_by }}</td>
+                                            {% if record.created_by %}
+                                                <td>{{ record.created_by.name }}</td>
+                                            {% else %}
+                                                <td>Admin</td>
+                                            {% endif %}
                                             <td><a href="{% url 'admin_update_invoice' invoice.id %}" class="text-decoration-none"><i class="bi bi-pencil-square text-primary"></i></a></td>
                                         </tr>
                                     {% endifchanged %}
