@@ -83,21 +83,12 @@
                     </div>
                 </nav>        
                 
-                <form class="form-inline my-2 my-lg-0" name="search" action="search" method="POST" autocomplete="off">
-                    {% csrf_token %}
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search username" name="username" aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" onclick="return validate()" type="submit">Search</button>
-                </form><br>
-                <script>
-                    function validate(){
-                    var uname = document.search.username.value;
-                    if(uname == ''){
-                        document.getElementById('error').innerHTML = 'Enter a username to search';
-                        return false;
-                    }
-                    }
-                </script>
-                <div id="error" class="mr-auto" style="display: inline-block; color: red;"></div>
+                <form method="get" action="{% url 'admin' %}" class="form-inline my-2 my-lg-0" autocomplete="off">
+                    <div class="mx-3">{{filter.form}}</div>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <br>
+
                 {% if messages %}
                     {% for i in messages %}
                     <div class="mr-auto" style="display: inline-block;">

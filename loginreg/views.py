@@ -14,6 +14,7 @@ from io import BytesIO
 from django.template.loader import get_template
 from django.views import View
 from xhtml2pdf import pisa
+from .filters import UserFilter
 
 
 # Sending email 
@@ -180,12 +181,11 @@ def admin(request):
             del request.session['updateuser']
         if request.session.has_key('createuser'):
             messages.success(request, 'User added successfully!')   
-            del request.session['createuser']   
-        if request.session.has_key('searchuser'):
-            messages.error(request, 'No such user!')   
-            del request.session['searchuser']   
+            del request.session['createuser']
+        
         users = User.objects.all()            
-        return render(request, 'loginreg/admin.html', {'dets': users})
+        filter_instance = UserFilter(request.GET, queryset=users)
+        return render(request, 'loginreg/admin.html', {'dets': filter_instance.qs, 'filter':filter_instance})
     elif request.POST:
         usern = request.POST.get('username')
         passw = request.POST.get('password')
@@ -363,26 +363,6 @@ def block(request):
             return redirect(view)  
     else:
         return redirect(admin)  
-
-def search(request):
-    if request.session.has_key('user'):
-        return redirect(home)
-    if request.session.has_key('admin'): 
-        if request.POST:
-            usern = request.POST['username']
-            user = User.objects.filter(name=usern)
-            if user:
-                user = User.objects.get(name=usern)
-                id = user.id
-                request.session['blockid'] = id    
-                return redirect(view) 
-            else:
-                request.session['searchuser'] = 1
-                return redirect(admin)
-    else:
-        return redirect(admin)
-    
-
 
 
 def adminlogout(request):
