@@ -31,6 +31,12 @@
             #sidebar ul li a {
                 font-size: 0.9em;
             }
+            #user-search input{
+                height: 40px;
+                margin: 0px 10px;
+                border-radius: 5px;
+                border: 1px solid black;
+            }
         </style>
     </head>
     <body>
@@ -83,7 +89,7 @@
                     </div>
                 </nav>        
                 
-                <form method="get" action="{% url 'admin' %}" class="form-inline my-2 my-lg-0" autocomplete="off">
+                <form method="get" action="{% url 'admin' %}" id="user-search" class="form-inline my-2 my-lg-0" autocomplete="off">
                     <div class="mx-3">{{filter.form}}</div>
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                 </form>

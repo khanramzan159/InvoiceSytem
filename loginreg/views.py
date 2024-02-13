@@ -14,7 +14,7 @@ from io import BytesIO
 from django.template.loader import get_template
 from django.views import View
 from xhtml2pdf import pisa
-from .filters import UserFilter
+from .filters import UserFilter, InvoiceFilter, InvoiceUserFilter
 
 
 # Sending email 
@@ -38,13 +38,15 @@ def home(request):
     if request.session.has_key('login'):  
         user = request.session['user']
         user_det = User.objects.get(name=user)
-        invoices = Invoice.objects.filter(created_by=user_det)
+        invoices = Invoice.objects.filter(created_by=user_det)    
+        invoice_filter = InvoiceUserFilter(request.GET, queryset=invoices)  
         context = {
             'user': user,
             'email': user_det.email,
             'id': user_det.id,   
             'status': user_det.status,
-            'invoices': invoices
+            'invoices': invoice_filter.qs,
+            'filter': invoice_filter,
         }   
         return render(request, 'loginreg/home.html', context)
     else:   
@@ -203,8 +205,9 @@ def admin_invoices(request):
     if request.session.has_key('user'):
         return redirect(home)
     if request.session.has_key('admin'):  
-        all_invoices = Invoice.objects.all()            
-        return render(request, 'loginreg/admin_invoices.html', {'invoices': all_invoices})
+        all_invoices = Invoice.objects.all()        
+        invoice_filter = InvoiceFilter(request.GET, queryset=all_invoices)    
+        return render(request, 'loginreg/admin_invoices.html', {'invoices': invoice_filter.qs, 'filter': invoice_filter})
     else:
         return redirect(admin)  
 
