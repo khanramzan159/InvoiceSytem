@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Sum
 from simple_history.models import HistoricalRecords
+from django_countries.fields import CountryField
 
 # Create your models here.
 class User(models.Model):
@@ -17,7 +18,13 @@ class Admin(models.Model):
 
 class Invoice(models.Model):
     customer_name = models.CharField(max_length=200)
-    address = models.TextField()
+    address_line1 = models.CharField(max_length=200, null=True)
+    address_line2 = models.CharField(max_length=200, null=True)
+    city = models.CharField(max_length=100, null=True)
+    state = models.CharField(max_length=100, null=True)
+    zip_code = models.CharField(max_length=10, null=True)
+    country = CountryField(default='IN')
+
     gst = models.DecimalField(max_digits=5, decimal_places=2, default=18.00)
     amount_paid = models.DecimalField(max_digits=20, decimal_places=2)
     amount_due = models.DecimalField(max_digits=20, decimal_places=2, editable=False, null=True)

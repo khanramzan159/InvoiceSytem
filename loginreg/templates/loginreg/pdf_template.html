@@ -75,10 +75,16 @@
                <h6 style="font-size: 13px;">RECEIVER (BILL TO) : </h6>
                <!-- Here inn the name we have to take the name & address form the invoice -->
                <p style="font-size: 13px;">
-                  Name : {{ invoice.customer_name }} <br >
-                  Billing Address : {{ invoice.address }} <br>                  
-                  Invoice No. : {{invoice.id}} <br>
-                  Invoice Date : {{invoice.created_at}}
+                  <span style="font-weight: bold; font-size: 15px;"> Name : </span>{{ invoice.customer_name }} <br >
+                  <span style="font-weight: bold; font-size: 15px;">Billing Address : </span>
+                  {{ invoice.address_line1 }},
+                  {{ invoice.address_line2 }}, 
+                  {{ invoice.city }} , {{invoice.zip_code}},
+                  {{ invoice.state }} , {% if invoice.country == 'IN' %}INDIA {% else %} {{invoice.country}} {% endif %}
+               </p>            
+               <p style="font-size: 13px;">  
+                  <span style="font-weight: bold; font-size: 15px;">Invoice No. : </span> {{invoice.id}} <br>
+                  <span style="font-weight: bold; font-size: 15px;">Invoice Date : </span> {{invoice.created_at}}
                </p>
             </div>
          </section>

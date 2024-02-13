@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'simple_history',
     'django_filters',
+    'django_countries',
 ]
 
 MIDDLEWARE = [
