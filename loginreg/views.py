@@ -14,6 +14,8 @@ from io import BytesIO
 from django.template.loader import get_template
 from django.views import View
 from xhtml2pdf import pisa
+from .filters import UserFilter, InvoiceFilter, InvoiceUserFilter
+from django.core.paginator import Paginator
 
 
 # Sending email 
@@ -37,13 +39,24 @@ def home(request):
     if request.session.has_key('login'):  
         user = request.session['user']
         user_det = User.objects.get(name=user)
-        invoices = Invoice.objects.filter(created_by=user_det)
+        invoices = Invoice.objects.filter(created_by=user_det)    
+        invoice_filter = InvoiceUserFilter(request.GET, queryset=invoices)  
+
+        # paginator logic
+        paginator = Paginator(invoice_filter.qs, 8)
+        page_number = request.GET.get('page')
+        InvoiceDataFinal = paginator.get_page(page_number)
+        totalpage = InvoiceDataFinal.paginator.num_pages
+
         context = {
             'user': user,
             'email': user_det.email,
             'id': user_det.id,   
             'status': user_det.status,
-            'invoices': invoices
+            'invoices': InvoiceDataFinal,
+            'filter': invoice_filter,
+            'lastpage':totalpage, 
+            'totalPageList':[n+1 for n in range(totalpage)],
         }   
         return render(request, 'loginreg/home.html', context)
     else:   
@@ -58,12 +71,13 @@ def home(request):
 def changepassword(request):
     if request.session.has_key('admin'):
         return redirect(admin)
-    if request.session.has_key('login'):
+    user_instance = User.objects.get(name=request.session['user'])
+    if request.session.has_key('login') and user_instance.status==1:
         if request.session.has_key('update'):
             messages.success(request, 'Password updated!')
             del request.session['update']
         if request.session.has_key('error'):
-            messages.error(request, 'Invalid password!')
+            messages.error(request, 'Enter the Correct Current Password')
             del request.session['error']    
         user = request.session['user']
         user_det = User.objects.get(name=user)
@@ -75,7 +89,7 @@ def changepassword(request):
         }   
         return render(request, 'loginreg/change_pass.html', context)
     else:   
-        return render(request, 'loginreg/index.html')
+        return redirect(home)
 
 def login(request):
     if request.session.has_key('login'):
@@ -90,6 +104,7 @@ def login(request):
                 user = User.objects.get(name=uname)
                 request.session['login'] = 1
                 request.session['user'] = uname
+                messages.success(request, 'You are logged in Successfully.')
                 return redirect(home)
                 # if user.status == 1:
                 #     request.session['login'] = 1
@@ -182,12 +197,18 @@ def admin(request):
             del request.session['updateuser']
         if request.session.has_key('createuser'):
             messages.success(request, 'User added successfully!')   
-            del request.session['createuser']   
-        if request.session.has_key('searchuser'):
-            messages.error(request, 'No such user!')   
-            del request.session['searchuser']   
+            del request.session['createuser']
+        
         users = User.objects.all()            
-        return render(request, 'loginreg/admin.html', {'dets': users})
+        filter_instance = UserFilter(request.GET, queryset=users)
+
+        # paginator logic
+        paginator = Paginator(filter_instance.qs, 8)
+        page_number = request.GET.get('page')
+        UserDataFinal = paginator.get_page(page_number)
+        totalpage = UserDataFinal.paginator.num_pages
+
+        return render(request, 'loginreg/admin.html', {'dets': UserDataFinal, 'filter':filter_instance, 'lastpage':totalpage, 'totalPageList':[n+1 for n in range(totalpage)]})
     elif request.POST:
         usern = request.POST.get('username')
         passw = request.POST.get('password')
@@ -205,8 +226,16 @@ def admin_invoices(request):
     if request.session.has_key('user'):
         return redirect(home)
     if request.session.has_key('admin'):  
-        all_invoices = Invoice.objects.all()            
-        return render(request, 'loginreg/admin_invoices.html', {'invoices': all_invoices})
+        all_invoices = Invoice.objects.all()        
+        invoice_filter = InvoiceFilter(request.GET, queryset=all_invoices)    
+        
+        # paginator logic
+        paginator = Paginator(invoice_filter.qs, 8)
+        page_number = request.GET.get('page')
+        InvoiceDataFinal = paginator.get_page(page_number)
+        totalpage = InvoiceDataFinal.paginator.num_pages
+
+        return render(request, 'loginreg/admin_invoices.html', {'invoices': InvoiceDataFinal, 'filter': invoice_filter, 'lastpage':totalpage, 'totalPageList':[n+1 for n in range(totalpage)]})
     else:
         return redirect(admin)  
 
@@ -365,26 +394,6 @@ def block(request):
             return redirect(view)  
     else:
         return redirect(admin)  
-
-def search(request):
-    if request.session.has_key('user'):
-        return redirect(home)
-    if request.session.has_key('admin'): 
-        if request.POST:
-            usern = request.POST['username']
-            user = User.objects.filter(name=usern)
-            if user:
-                user = User.objects.get(name=usern)
-                id = user.id
-                request.session['blockid'] = id    
-                return redirect(view) 
-            else:
-                request.session['searchuser'] = 1
-                return redirect(admin)
-    else:
-        return redirect(admin)
-    
-
 
 
 def adminlogout(request):
@@ -550,7 +559,7 @@ def verify_otp(request):
 
                 del request.session['otp_code']  # Remove the OTP code from the session
                 del request.session['signup_data']
-
+                messages.success(request, 'You are Registered and logged in Successfully.')
                 return redirect(home)
             # OTP is incorrect, display an error message
         messages.error(request, 'Invalid OTP. Please try again.')
@@ -664,3 +673,19 @@ def reset_password(request):
                 return render(request, 'loginreg/reset_password.html', {'user_email': email})
         else:
             return render(request, 'loginreg/reset_password.html', {'user_email': email})
+def pdf_history_view(request, invoice_id):
+    if request.session.has_key('admin'):
+        return pdf_history_view2(request, invoice_id)
+    else:
+        return HttpResponse("404 PAGE NOT FOUND", status=404)
+    
+def pdf_history_view2(request, invoice_id):  
+    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    history = invoice.history.all()
+
+    pdf = render_to_pdf('loginreg/pdf_history_view.html', {'invoice': invoice, 'history': history})
+    
+    if pdf:
+        return pdf
+    else:
+        return HttpResponse("Error generating PDF", status=500)

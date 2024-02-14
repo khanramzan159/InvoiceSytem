@@ -1,14 +1,21 @@
 from django import forms
 from django.forms import inlineformset_factory
 from .models import Invoice, Item
+from django_countries.fields import CountryField
 
 class InvoiceForm(forms.ModelForm):
+    country = CountryField(default='IN')
     class Meta:
         model = Invoice
-        fields = ['customer_name', 'address', 'gst', 'amount_paid', 'note']
+        fields = ['customer_name', 'email', 'address_line1', 'address_line2', 'city', 'state', 'zip_code', 'country', 'gst', 'amount_paid', 'note']
         widgets = {
             'customer_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'address': forms.Textarea(attrs={'class': 'form-control'}),
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'address_line1': forms.TextInput(attrs={'class': 'form-control'}),
+            'address_line2': forms.TextInput(attrs={'class': 'form-control'}),
+            'city': forms.TextInput(attrs={'class': 'form-control'}),
+            'state': forms.TextInput(attrs={'class': 'form-control'}),
+            'zip_code': forms.TextInput(attrs={'class': 'form-control'}),
             'note': forms.Textarea(attrs={'class': 'form-control'}),
             'gst': forms.NumberInput(attrs={'class': 'form-control', 'readonly': True}),
             'amount_paid': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -16,6 +23,10 @@ class InvoiceForm(forms.ModelForm):
             'subtotal': forms.NumberInput(attrs={'class': 'form-control', 'readonly': True}),
             'gst_rate': forms.NumberInput(attrs={'class': 'form-control', 'readonly': True}),
             'all_total': forms.NumberInput(attrs={'class': 'form-control', 'readonly': True}),
+        }
+        labels = {
+            'customer_name': 'Company Name',
+            'email': 'Company Email',
         }
 
 class ItemForm(forms.ModelForm):

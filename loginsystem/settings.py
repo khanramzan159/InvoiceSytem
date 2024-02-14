@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'simple_history',
+    'django_filters',
+    'django_countries',
 ]
 
 MIDDLEWARE = [
@@ -102,7 +104,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'UserManagement',
         'USER': 'root',
-        'PASSWORD': 'ramzan216102',
+        'PASSWORD': 'Altamash2003@',
         'HOST': 'localhost',  # or the hostname where your MySQL server is running
         'PORT': '3306',      # or the port on which your MySQL server is listening
     }

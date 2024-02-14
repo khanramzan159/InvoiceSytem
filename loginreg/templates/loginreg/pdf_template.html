@@ -75,33 +75,39 @@
                <h6 style="font-size: 13px;">RECEIVER (BILL TO) : </h6>
                <!-- Here inn the name we have to take the name & address form the invoice -->
                <p style="font-size: 13px;">
-                  Name : {{ invoice.customer_name }} <br >
-                  Billing Address : {{ invoice.address }} <br>                  
-                  Invoice No. : {{invoice.id}} <br>
-                  Invoice Date : {{invoice.created_at}}
+                  <span style="font-weight: bold; font-size: 15px;"> Name : </span>{{ invoice.customer_name }} <br >
+                  <span style="font-weight: bold; font-size: 15px;">Billing Address : </span>
+                  {{ invoice.address_line1 }},
+                  {{ invoice.address_line2 }}, 
+                  {{ invoice.city }} , {{invoice.zip_code}},
+                  {{ invoice.state }} , {% if invoice.country == 'IN' %}INDIA {% else %} {{invoice.country}} {% endif %}
+               </p>            
+               <p style="font-size: 13px;">  
+                  <span style="font-weight: bold; font-size: 15px;">Invoice No. : </span> {{invoice.id}} <br>
+                  <span style="font-weight: bold; font-size: 15px;">Invoice Date : </span> {{invoice.created_at}}
                </p>
             </div>
          </section>
          <table class="table table-bordered">
             <thead>
                <tr>
-                  <th style="font-size: 14px;">Sr No.</th>
-                  <th style="font-size: 14px;">Item Code</th>
-                  <th style="font-size: 14px;">Item Name</th>
-                  <th style="font-size: 14px;">Quantity(Nos.)</th>
-                  <th style="font-size: 14px;">Price (Rs.)</th>
-                  <th style="font-size: 14px;">Actual Amount (Rs.)</th>
+                  <th style="font-size: 14px; width: 50; text-align: center;">Sr No.</th>
+                  <th style="font-size: 14px; width: 60px; text-align: center;">Item Code</th>
+                  <th style="font-size: 14px; width: 540px; text-align: center;">Item Name</th>
+                  <th style="font-size: 14px; width: 100px; text-align: center;">Quantity</th>
+                  <th style="font-size: 14px; width: 100px; text-align: center;">Price (Rs.)</th>
+                  <th style="font-size: 14px; width: 100px; text-align: center;">Actual Amount (Rs.)</th>
                </tr>
             </thead>
             <tbody>
                {% for item in items %}
                   <tr>
-                     <td style="font-size: 12px;">{{ forloop.counter }}</td>
-                     <td style="font-size: 12px;">{{ item.item_no }}</td>
-                     <td style="font-size: 12px;">{{ item.item_name }}</td>
-                     <td style="font-size: 12px;">{{ item.quantity }}</td>
-                     <td style="font-size: 12px;">{{ item.price }}</td>
-                     <td style="font-size: 12px;">{{ item.total }}</td>
+                     <td style="font-size: 12px; text-align: center">{{ forloop.counter }}</td>
+                     <td style="font-size: 12px; text-align: center">{{ item.item_no }}</td>
+                     <td style="font-size: 12px; text-align: center">{{ item.item_name }}</td>
+                     <td style="font-size: 12px; text-align: center">{{ item.quantity }}</td>
+                     <td style="font-size: 12px; text-align: center">{{ item.price }}</td>
+                     <td style="font-size: 12px; text-align: center">{{ item.total }}</td>
                   </tr>
                {% endfor %}
                <tr class="default">
