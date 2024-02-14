@@ -22,10 +22,10 @@ def generation_otp():
     for i in range(6):
         otp += str(random.randint(0, 9))
     return otp
-def send_email_to_client(email):
-    subject = "Email Verification from Aryansh Electricals"
+def send_email_to_client(email, subject, keyword):
+    subject = subject
     otp_code = generation_otp()
-    message = f'Your OTP code is :{otp_code}'
+    message = f'Your OTP code {keyword} is :{otp_code}'
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
@@ -129,16 +129,20 @@ def signup(request):
                     messages.error(request, 'email already exists!')
                     return render(request, 'loginreg/signup.html')
                 else:
-                    otp_code = send_email_to_client(email)
-                    request.session['otp_code'] = otp_code 
-                    request.session['signup_data'] = {
-                        'uname_u': uname,
-                        'email': email,
-                        'password':passwenc
-                    }    
-                    print(uname)
-                    messages.success(request, 'OTP has been sent on your registered Email')
-                    return redirect('verify_otp')
+                    try:
+                        otp_code = send_email_to_client(email, "Email Verification for Registeration from Aryansh Electricals", "for Registration")
+                        request.session['otp_code'] = otp_code 
+                        request.session['signup_data'] = {
+                            'uname_u': uname,
+                            'email': email,
+                            'password':passwenc
+                        }    
+                        print(uname)
+                        messages.success(request, 'OTP has been sent on your registered Email')
+                        return redirect('verify_otp')
+                    except Exception as e:
+                        messages.error(request, str("Network Issue try again"))
+                        return render(request, 'loginreg/signup.html')
         else:
             return render(request, 'loginreg/signup.html')
 
@@ -529,7 +533,6 @@ def verify_otp(request):
         user_email = request.POST.get('email')
         if 'otp_code' in request.session:
             otp_code = request.session['otp_code']
-            del request.session['otp_code']  # Remove the OTP code from the session
 
             if entered_otp == otp_code:
                 print("Till here ------")
@@ -545,6 +548,7 @@ def verify_otp(request):
                 request.session['login'] = 1
                 request.session['user'] = uname
 
+                del request.session['otp_code']  # Remove the OTP code from the session
                 del request.session['signup_data']
 
                 return redirect(home)
@@ -596,3 +600,67 @@ def pdf_view2(request, invoice_id):
     else:
         return HttpResponse("Error generating PDF", status=500)
 
+def email_verification(request):
+    if request.session.has_key('admin'):
+        return redirect(admin)
+    if request.session.has_key('login'):
+        return redirect(home)
+    else:    
+        if request.POST:
+            email = request.POST.get('forgot_password_email', '')
+            user = User.objects.filter(email=email)
+            if not user:
+                messages.error(request, 'Email does not exist, Please Register')
+                return render(request, 'loginreg/email_verification.html')
+            else:
+                try:
+                    otp_code = send_email_to_client(email, "Forgot Password", "for Resetting the Password")
+                    request.session['otp_code'] = otp_code 
+                    request.session['forgot_password_data'] = {
+                        'email': email
+                    }
+                    messages.success(request, 'OTP has been sent on your registered Email')
+                    return redirect('reset_password')
+                except Exception as e:
+                    messages.error(request, str("Network Issue try again"))
+                    return render(request, 'loginreg/email_verification.html')
+        else:
+            return render(request, 'loginreg/email_verification.html')
+
+
+def reset_password(request):
+    forgot_password_data = request.session.get('forgot_password_data', {})
+    email = forgot_password_data.get('email')
+    # uname = request.session.get('user')
+    if request.session.has_key('admin'):
+        return redirect(admin)
+    if request.session.has_key('login'):
+        return redirect(home)
+    else:
+        if request.POST:
+            entered_otp = request.POST.get('otp')
+            if 'otp_code' in request.session:
+                otp_code = request.session['otp_code']
+                if entered_otp == otp_code:
+                    passw = request.POST.get('pass', '')
+                    passwenc = sha256(passw.encode()).hexdigest()
+                    print("Till here ------")
+                    user = User.objects.get(email=email)
+                    uname = user.name
+                    user.password = passwenc
+                    user.status = False
+                    user.save()
+                    print("Done-----------")
+                    # request.session['user'] = uname
+                    del request.session['otp_code']  # Remove the OTP code from the session
+                    del request.session['forgot_password_data']
+                    messages.success(request, 'Password is being Reset ')
+                    return redirect(login)
+                else:
+                    messages.error(request, 'Invalid OTP. Please try again.')
+                    return render(request, 'loginreg/reset_password.html', {'user_email': email})
+            else:
+                messages.error(request, 'Please Request the OTP.')
+                return render(request, 'loginreg/reset_password.html', {'user_email': email})
+        else:
+            return render(request, 'loginreg/reset_password.html', {'user_email': email})

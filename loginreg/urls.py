@@ -28,5 +28,7 @@ urlpatterns = [
     path('update_invoice/<int:invoice_id>/', views.update_invoice, name='update_invoice'),
     path('delete_invoice/<int:invoice_id>/', views.delete_invoice, name='delete_invoice'),
     path('verify_otp', views.verify_otp, name='verify_otp'),
-    path('pdf_view/<int:invoice_id>', views.pdf_view, name="pdf_view")
+    path('pdf_view/<int:invoice_id>', views.pdf_view, name="pdf_view"),
+    path('email_verification', views.email_verification, name="email_verification"),
+    path('email_verified/reset_password', views.reset_password, name="reset_password")
 ]
