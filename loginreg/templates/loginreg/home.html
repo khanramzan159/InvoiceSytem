@@ -12,6 +12,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <title> HOME - {% if user %}{{user}}{% endif %}</title>
+    <style> 
+        body{
+            font-family: 'Poppins', sans-serif;
+        }       
+        #serch-invoice input{
+            height: 40px;
+            margin: 0px 10px;
+            padding: 0px 5px;
+            border-radius: 5px;
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -57,14 +69,45 @@
             </div>
 
             <h3 class="text-center my-3">Your Invoices</h3>
+            <div class="d-flex justify-content-between align-items-center">
+                <form method="get" action="{% url 'home' %}" id="serch-invoice" class="d-flex justify-content-start my-5 col-md-7" autocomplete="off">
+                    {{filter.form}}
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Apply Filter</button>
+                </form>
+                <nav class="col-md-4 my-5" aria-label="...">
+                    <ul class="pagination m-0">
+                        {% if invoices.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" tabindex="-1">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{invoices.previous_page_number}}" tabindex="-1">Previous</a>
+                        </li>
+                        {% endif %}
 
+                        {% for n in totalPageList %}
+                            <li class="page-item"><a class="page-link" href="?page={{n}}">{{n}}</a></li>
+                        {% endfor %}
+
+                        {% if invoices.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{invoices.next_page_number}}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{lastpage}}">Last</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-hover mb-5">
                     <thead class="thead-dark">
                         <tr>
                             <th>Invoice No.</th>
                             <th>Create Date</th>
-                            <th>Customer Name</th>
+                            <th>Company Name</th>
+                            <th>Email</th>
                             <th>Invoice Total</th>
                             <th>Created By</th>
                             <th>Edit</th>
@@ -76,10 +119,11 @@
                         {% for invoice in invoices %}
                             <tr>
                                 <td>{{ invoice.id }}</td>
-                                <td>{{ invoice.created_at }}</td>
+                                <td>{{ invoice.created_at|date:"d-m-Y" }}</td>
                                 <td>{{ invoice.customer_name }}</td>
+                                <td>{{ invoice.email }}</td>
                                 <td>{{ invoice.all_total }}</td>
-                                <td>{{ invoice.created_by }}</td>
+                                <td>{{ invoice.created_by.name }}</td>
                                 <td><a href="{% url 'update_invoice' invoice.id %}" class="text-decoration-none"><i class="bi bi-pencil-square text-primary"></i></a></td>
                                 <td><a href="{% url 'pdf_view' invoice.id %}" class="text-decoration-none" target=_blank><i class="bi bi-eye text-primary"></i></a></td>
                                 <td><a href="{% url 'delete_invoice' invoice.id %}" class="text-decoration-none text-danger"><i class="bi bi-trash-fill"></i></a></td>

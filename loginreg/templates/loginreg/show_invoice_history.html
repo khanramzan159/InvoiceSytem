@@ -117,7 +117,7 @@
                             </thead>
                             <tbody>
                                 {% for record in history %}
-                                    {% ifchanged record.all_total or record.customer_name or record.amount_paid or record.amount_due or record.address or record.gst or record.note  %}
+                                    {% ifchanged record.all_total or record.customer_name or record.amount_paid or record.amount_due or record.address_line1 or record.address_line2 or record.city or record.state or record.zip_code or record.gst or record.note  %}
                                         <tr>
                                             <td>{{ invoice }}</td>
                                             <td>{{ record.history_date }}</td>
@@ -134,7 +134,11 @@
                                                     Deleted
                                                 {% endif %}
                                             </td>
-                                            <td>{{ record.created_by }}</td>
+                                            {% if record.created_by %}
+                                                <td>{{ record.created_by.name }}</td>
+                                            {% else %}
+                                                <td>Admin</td>
+                                            {% endif %}
                                             <td><a href="{% url 'admin_update_invoice' invoice.id %}" class="text-decoration-none"><i class="bi bi-pencil-square text-primary"></i></a></td>
                                         </tr>
                                     {% endifchanged %}
