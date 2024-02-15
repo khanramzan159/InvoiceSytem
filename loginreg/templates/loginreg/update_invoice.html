@@ -158,6 +158,34 @@
                                         <p style="color: red">{{ error }}</p>
                                     {% endfor %}
                                 </div>
+                                <div class="form-group card-body d-flex justify-content-center align-items-center">
+                                    <label>{{ invoice_form.gst_no.label }} 
+                                        {% if invoice_form.gst_no.field.required %}
+                                            <span style="color: red;" class="required">*</span>
+                                        {% endif %}
+                                    </label>                                    
+                                    {{ invoice_form.gst_no }}
+                                    {% if invoice_form.gst_no.help_text %}
+                                        <small style="color: grey">{{ invoice_form.gst_no.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in invoice_form.gst_no.errors %}
+                                        <p style="color: red">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="form-group card-body d-flex justify-content-center align-items-center">
+                                    <label>{{ invoice_form.hsn_no.label }} 
+                                        {% if invoice_form.hsn_no.field.required %}
+                                            <span style="color: red;" class="required">*</span>
+                                        {% endif %}
+                                    </label>                                    
+                                    {{ invoice_form.hsn_no }}
+                                    {% if invoice_form.hsn_no.help_text %}
+                                        <small style="color: grey">{{ invoice_form.hsn_no.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in invoice_form.hsn_no.errors %}
+                                        <p style="color: red">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
                                 <hr class="bg-primary">                                    
                                     <div class="form-group card-body d-flex justify-content-center align-items-center mb-0 pt-0 pb-1">
                                         <label>{{ invoice_form.address_line1.label }} 

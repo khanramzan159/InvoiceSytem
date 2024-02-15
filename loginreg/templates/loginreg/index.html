@@ -36,7 +36,17 @@
             </li>
           </ul>
         </div>
-      </nav>
+    </nav>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show d-flex justify-content-between m-5" role="alert">
+            <h5 class="mx-3">{{ message }}</h5>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+    {% endif %}
     <div class="main">
         <!-- Sing in  Form -->
         <section class="sign-in" style="margin-top: -120px !important;">
@@ -65,13 +75,7 @@
                             <div class="form-group">
                                 <p id="perror" style="color: red; margin-top: -10px;"></p>
                             </div>
-                            <div class="form-group">
-                               {% if messages %}
-                               {% for message in messages %}
-                               <p class="{{message.tags}}">{{message}}</p>
-                               {% endfor %}
-                               {% endif %}
-                            </div>
+                            
                             <div class="form-group form-button" style="margin-top: -15px;">
                                 <button style="border: none;" onclick="return validate()" type="submit" name="signin" id="signin" class="form-submit">Log in</button>
                             </div>

@@ -7,10 +7,12 @@ class InvoiceForm(forms.ModelForm):
     country = CountryField(default='IN')
     class Meta:
         model = Invoice
-        fields = ['customer_name', 'email', 'address_line1', 'address_line2', 'city', 'state', 'zip_code', 'country', 'gst', 'amount_paid', 'note']
+        fields = ['customer_name', 'email', 'gst_no', 'hsn_no', 'address_line1', 'address_line2', 'city', 'state', 'zip_code', 'country', 'gst', 'amount_paid', 'note']
         widgets = {
             'customer_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'gst_no': forms.TextInput(attrs={'class': 'form-control'}),
+            'hsn_no': forms.TextInput(attrs={'class': 'form-control'}),
             'address_line1': forms.TextInput(attrs={'class': 'form-control'}),
             'address_line2': forms.TextInput(attrs={'class': 'form-control'}),
             'city': forms.TextInput(attrs={'class': 'form-control'}),
