@@ -149,7 +149,8 @@
 
                     
                     <div class="text-center">
-                        <td><a href="{% url 'pdf_history_view' invoice.id %}" class="text-decoration-none btn btn-primary" target=_blank>Preview Pdf</a></td>
+                        <td><a href="{% url 'pdf_history_view' invoice.id %}?admin_preview=true" class="text-decoration-none btn btn-primary" target=_blank>Preview Pdf</a></td>
+                        <td><a href="{% url 'send_email_to_admin' invoice.id %}" class="text-decoration-none btn btn-secondary">Send Email Attachment</a></td>
                     </div>
                 </div>
             </div>
