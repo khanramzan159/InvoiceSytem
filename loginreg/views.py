@@ -694,9 +694,8 @@ def reset_password(request):
                     passwenc = sha256(passw.encode()).hexdigest()
                     print("Till here ------")
                     user = User.objects.get(email=email)
-                    uname = user.name
+                    
                     user.password = passwenc
-                    user.status = False
                     user.save()
                     print("Done-----------")
                     # request.session['user'] = uname

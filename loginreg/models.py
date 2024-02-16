@@ -38,6 +38,9 @@ class Invoice(models.Model):
     history = HistoricalRecords(user_model=User)
     email = models.CharField(max_length=100, null=True)
 
+    gst_no = models.CharField(max_length=50, null=True)
+    hsn_no = models.CharField(max_length=50, null=True)
+
     def save(self, *args, **kwargs):
         super(Invoice, self).save(*args, **kwargs)  # Save the Invoice instance first
         # Calculate subtotal based on the sum of total fields of related items

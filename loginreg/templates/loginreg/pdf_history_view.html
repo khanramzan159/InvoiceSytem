@@ -63,6 +63,7 @@
    <body>
       <div class="table_data">
          <div id="header_content">
+            <img src="https://res.cloudinary.com/dmq0rgph0/image/upload/v1707930324/logo-img_gnaohu.jpg" width="150px" alt="LOGO IMG">
             <h2 style="font-size: 17px;">AARYANSH ELECTRICALS INVOICE</h2>
             <h6 style="font-size: 13px;">C-702, Atharvaved, Vedant CHS, Wayale Nagar <br>
             Kalyan (W), Thane, Maharashtra, Pincode - 421301 <br>
@@ -104,7 +105,11 @@
                                     Deleted
                                 {% endif %}
                             </td>
-                            <td style="text-align: center;">{{ record.created_by }}</td>
+                            {% if record.created_by %}
+                                <td style="text-align: center;">{{ record.created_by.name }}</td>
+                            {% else %}
+                                <td style="text-align: center;">Admin</td>
+                            {% endif %}
                         </tr>
                     {% endifchanged %}
                 {% endfor %}
