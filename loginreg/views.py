@@ -6,7 +6,7 @@ from hashlib import sha256
 from django.contrib import messages
 from django.db.models import Q
 from .forms import InvoiceForm, ItemFormSet
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 import random
 
@@ -32,6 +32,36 @@ def send_email_to_client(email, subject, keyword):
     recipient_list = [email]
     send_mail(subject, message, from_email, recipient_list)
     return otp_code
+    
+# Sending Email 
+def send_email_with_attachment(subject, message, email, recipient_list, pdf_content):
+    try:
+        mail = EmailMessage(subject=subject, body=message, from_email=email, to=recipient_list)
+        mail.attach("invoice_pdf", pdf_content.getvalue(), "application/pdf")
+        mail.send()
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False  
+
+def send_email(request, invoice_id):
+    pdf_content = pdf_view2(request, invoice_id)
+    if pdf_content:
+        invoice = get_object_or_404(Invoice, id=invoice_id)
+        subject = "Invoice Attachment"
+        message = f"Please find the attached invoice for {invoice.customer_name}."
+        email = settings.EMAIL_HOST_USER
+        recipient_list = [invoice.email] 
+        print(invoice.email) 
+        sent = send_email_with_attachment(subject, message, email, recipient_list, pdf_content)
+
+        if sent:
+            messages.success(request, 'File Attachment has been sent to the customer email.')
+        else:
+            messages.error(request, 'Invalid File')
+    else:
+        messages.error(request, "Something went wrong ")
+    return redirect(home)
 
 def home(request):
     if request.session.has_key('admin'):
@@ -210,10 +240,10 @@ def admin(request):
 
         return render(request, 'loginreg/admin.html', {'dets': UserDataFinal, 'filter':filter_instance, 'lastpage':totalpage, 'totalPageList':[n+1 for n in range(totalpage)]})
     elif request.POST:
-        usern = request.POST.get('username')
+        email = request.POST.get('email')
         passw = request.POST.get('password')
         # passwenc = sha256(passw.encode()).hexdigest()
-        admins = Admin.objects.filter(username=usern,password=passw)
+        admins = Admin.objects.filter(email=email,password=passw)
         if admins:
             request.session['admin'] = 1
             return redirect(admin)
@@ -605,7 +635,16 @@ def pdf_view2(request, invoice_id):
     pdf = render_to_pdf('loginreg/pdf_template.html', data)
     
     if pdf:
-        return pdf
+        if request.GET.get('download') == 'true':
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{invoice.id}_invoice.pdf"'
+            return response
+            # temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+            # temp_file.write(pdf.getvalue())
+            # temp_file.close()
+            # return temp_file.name
+        else:
+            return pdf
     else:
         return HttpResponse("Error generating PDF", status=500)
 
@@ -686,6 +725,32 @@ def pdf_history_view2(request, invoice_id):
     pdf = render_to_pdf('loginreg/pdf_history_view.html', {'invoice': invoice, 'history': history})
     
     if pdf:
-        return pdf
+        if request.GET.get('admin_preview') == 'true':
+            return pdf
+        else:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{invoice.customer_name}_invoice.pdf"'
+            return response      
     else:
         return HttpResponse("Error generating PDF", status=500)
+
+def send_email_to_admin(request, invoice_id):
+    pdf_content = pdf_history_view(request, invoice_id)
+    if pdf_content:
+        invoice = get_object_or_404(Invoice, id=invoice_id)
+        admin = Admin.objects.first()
+        print(admin.email)
+        subject = "Invoice Attachment"
+        message = f"This is the attach history file for {invoice.customer_name}."
+        email = settings.EMAIL_HOST_USER
+        recipient_list = [admin.email] 
+        print(invoice.email)
+        sent = send_email_with_attachment(subject, message, email, recipient_list, pdf_content)
+
+        if sent:
+            messages.success(request, 'File Attachment has been sent to your email.')
+        else:
+            messages.error(request, 'Invalid File')
+    else:
+        messages.error(request, "Something went wrong ")
+    return redirect(admin_invoices)
